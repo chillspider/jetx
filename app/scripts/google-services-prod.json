@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "671821638452",
+    "project_id": "wash24h-app",
+    "storage_bucket": "wash24h-app.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:671821638452:android:2df4c65b32a29efe245361",
+        "android_client_info": {
+          "package_name": "com.wash.jetx"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "671821638452-lmfh08hjbo7pf1u2jh5bl4bdesu9pvdg.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB-A3jZsq0DJDC3spjKM73G0sQNWWuGeS4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "671821638452-lmfh08hjbo7pf1u2jh5bl4bdesu9pvdg.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "671821638452-35g5lrv553bqgb99ac15u0lovbldfvis.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.wash.jetx"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

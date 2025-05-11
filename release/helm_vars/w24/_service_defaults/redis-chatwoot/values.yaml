@@ -1,0 +1,15 @@
+master:
+  persistence:
+    enabled: false
+  disableCommands:
+
+cluster:
+  enabled: false
+
+replica:
+  persistence:
+    enabled: false
+
+auth:
+  enabled: true
+  password: Zodinet@123

@@ -1,0 +1,79 @@
+{{- if .Values.internalIngress.enabled -}}
+{{- $fullName := include "generic.fullname" . -}}
+{{- $svcPort := (first .Values.services).port | default 8080 -}}
+{{- if and .Values.internalIngress.className (not (semverCompare ">=1.18-0" .Capabilities.KubeVersion.GitVersion)) }}
+  {{- if not (hasKey .Values.internalIngress.annotations "kubernetes.io/ingress.class") }}
+  {{- $_ := set .Values.internalIngress.annotations "kubernetes.io/ingress.class" .Values.internalIngress.className}}
+  {{- end }}
+{{- end }}
+{{- $useGCEIngress := (or (eq "gce-internal" .Values.internalIngress.className)
+                           (and (hasKey .Values.internalIngress.annotations "kubernetes.io/ingress.class")
+                                (eq "gce-internal" (get .Values.internalIngress.annotations "kubernetes.io/ingress.class")))) -}}
+---
+{{- if and .Values.internalIngress.redirect_https $useGCEIngress }}
+apiVersion: networking.gke.io/v1beta1
+kind: FrontendConfig
+metadata:
+  name: {{ $fullName }}
+spec:
+  redirectToHttps:
+    enabled: true
+    responseCodeName: MOVED_PERMANENTLY_DEFAULT
+{{- end }}
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ printf "%s-%s"  $fullName "internal" | trunc 63 | trimSuffix "-"}}
+  labels:
+    {{- include "generic.labels" . | nindent 4 }}
+  {{- with .Values.internalIngress.annotations }}
+  annotations:
+    {{- tpl (toYaml .) $ | nindent 4 }}
+  {{- end }}
+spec:
+  {{- if and .Values.internalIngress.className (semverCompare ">=1.18-0" .Capabilities.KubeVersion.GitVersion) }}
+  ingressClassName: {{ .Values.internalIngress.className }}
+  {{- end }}
+  {{- if .Values.internalIngress.defaultBackend }}
+  defaultBackend:
+    service: 
+      name: {{ $fullName }}
+      port:
+        number: {{ $svcPort }}
+  {{- end }}
+  tls:
+    - hosts:
+      {{- range $_, $domain := $.Values.internalIngress.domains }}
+        {{- range $_, $subdomain := $.Values.internalIngress.subdomains }}
+        - {{ tpl (printf "%s.%s" $subdomain $domain) $ | quote }}
+        {{- end }}
+      {{- end }}
+      {{- with $.Values.internalIngress.tls.secretName }}
+      secretName: {{ . }}
+      {{- end }}
+      {{- if $.Values.internalIngress.tls.autoSecret }}
+      secretName: {{ printf "%s-internal-cert" $fullName | trunc 64 | trimSuffix "-" | quote }}
+      {{- end }}
+  rules:
+    {{- range $_, $domain := $.Values.internalIngress.domains }}
+    {{- range $_, $subdomain := $.Values.internalIngress.subdomains }}
+    - host: {{ tpl (printf "%s.%s" $subdomain $domain) $ | quote }}
+      http:
+        paths:
+          {{- range $.Values.internalIngress.paths }}
+          - path: {{ .path }}
+            pathType: {{ .pathType }}
+            backend:
+              service:
+                {{- if .servicePrefix }}
+                  name: {{ printf "%s-%s" .servicePrefix $fullName | trunc 63 | trimSuffix "-"}}
+                {{- else }}
+                  name: {{ .serviceName | default $fullName }}
+                {{- end }}
+                  port:
+                    number: {{ .servicePort | default $svcPort }}
+          {{- end }}
+    {{- end }}
+    {{- end }}
+{{- end }}

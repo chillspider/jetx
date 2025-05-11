@@ -1,0 +1,36 @@
+persistence:
+  enabled: true
+  # existingClaim: "emqx-prod-pvc"
+emqxConfig:
+  EMQX_DASHBOARD__DEFAULT_USERNAME: "admin"
+  EMQX_DASHBOARD__DEFAULT_PASSWORD: "Zodinet@2025"
+  EMQX_LISTENERS__TCP__DEFAULT__PROXY_PROTOCOL: "false"
+  EMQX_LISTENER__WS__EXTERNAL__PROXY_PROTOCOL: "true"
+  EMQX_LISTENER__TCP__EXTERNAL__PROXY_PROTOCOL: "false"
+  EMQX_LISTENER__WSS__EXTERNAL__PROXY_PROTOCOL: "true"
+
+replicaCount: 1
+
+# podSecurityContext:
+#   allowPrivilegeEscalation: true
+#   runAsUser: 0
+#   readOnlyRootFilesystem: true
+  
+# containerSecurityContext:
+#   allowPrivilegeEscalation: true
+#   runAsUser: 0
+#   readOnlyRootFilesystem: true
+
+ingress:
+  dashboard:
+    enabled: true
+    ingressClassName: nginx
+    annotations:
+      cert-manager.io/cluster-issuer: "default"
+    tls:
+      - hosts:
+        - emqx-dashboard.dev.wash24h.io
+        secretName: emqx-dashboard-cert
+    hosts:
+      - emqx-dashboard.dev.wash24h.io
+    path: /

@@ -1,0 +1,17 @@
+---
+name: default
+
+acme:
+  email: linh@zodinet.com
+  preferredChain: ""
+  server: https://acme-v02.api.letsencrypt.org/directory
+
+cloudflare:
+  name: no-name
+  key: no-key
+
+solvers: []
+
+certs: {}
+
+tokens: {}

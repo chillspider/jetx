@@ -1,0 +1,108 @@
+{{/* This requires both .Values.migrate.supported and .Values.migrate.enabled to be true */}}
+{{- if (and .Values.migrate.enabled .Values.migrate.supported) }}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  {{- $fullName := include "generic.fullname" $ }}
+  {{- if (eq .Values.fullnameOverride "") }}
+  {{- $fullName = printf "%s-%s" "migrate" $fullName | trunc 52 | trimSuffix "-" }}
+  {{- else }}
+  {{- $fullName = printf "%s" "migrate" | trunc 52 | trimSuffix "-" }}
+  {{- end }}
+  name: "{{ $fullName }}"
+  labels:
+    app.kubernetes.io/instance: {{ .Release.Name | quote }}
+    helm.sh/chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+  annotations:
+    helm.sh/hook: pre-install,pre-upgrade
+    helm.sh/hook-delete-policy: hook-succeeded,before-hook-creation
+    helm.sh/hook-weight: "5"
+spec:
+  template:
+    metadata:
+      name: "{{ .Release.Name }}"
+      labels:
+        zodinet/job-name: "migrate" 
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      restartPolicy: {{ .Values.migrate.restartPolicy | default "Never" | quote}}
+      containers:
+      - name: backend 
+        {{- $imageRepo := default .Values.image.repository .Values.migrate.image }}
+        {{- $imageTag := default .Values.image.tag .Values.migrate.tag }}
+        image: {{ printf "%s:%s" $imageRepo $imageTag }}
+        env:
+          - name: AUTO_MIGRATION
+            value: "true"
+          - name: AUTO_CLOSE
+            value: "true"
+          {{- range $k, $v := .Values.env }}
+          - name: {{ $k }}
+            value: {{ printf "%s" $v | quote }}
+          {{- end }}
+        envFrom:
+          - secretRef:
+              name: {{ printf "migrate-%s" (include "generic.fullname" $) | trunc 63 | quote }}
+        volumeMounts:
+        # {{- if .Values.fileMounts }}
+        #   {{- range $key, $file := .Values.fileMounts }}
+        #   - name: {{ $key }}-file-volume
+        #     mountPath: {{ print $file.mountPath "/" $file.path | clean }}
+        #     subPath: {{ $file.path }}
+        #     readOnly: true
+        #   {{- end }}
+        # {{- end }}
+        {{- if .Values.secretMounts }}
+          {{- range $key, $secret := .Values.secretMounts }}
+          - name: {{ $key }}-secret-volume
+            mountPath: {{ print $secret.mountPath "/" $secret.path | clean }}
+            subPath: {{ $secret.path }}
+            readOnly: true
+          {{- end }}
+        {{- end }}
+      {{- if .Values.extraVolumeMounts }}
+        {{- toYaml .Values.extraVolumeMounts | nindent 16 }}
+      {{- end }}
+      volumes:
+      {{- if .Values.fileMounts }}
+        {{- range $key, $file := .Values.fileMounts }}
+        - name: {{ $key }}-file-volume
+          configMap:
+            name: {{ $.Release.Name }}-configmap
+            items:
+            - key: {{ $key }}
+              path: {{ $file.path }}
+        {{- end }}
+      {{- end }}
+      {{- if .Values.secretMounts }}
+        {{- range $key, $secret := .Values.secretMounts }}
+        - name: {{ $key }}-secret-volume
+          secret:
+            secretName: {{ $.Release.Name }}-files
+            items:
+            - key: {{ $key }}
+              path: {{ $secret.path }}
+        {{- end }}
+      {{- end }}
+      {{- if .Values.extraVolumes }}
+        {{- toYaml .Values.extraVolumes | nindent 8 }}
+      {{- end }}
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: {{ printf "migrate-%s" (include "generic.fullname" $) | trunc 63 | quote }}
+  labels:
+    {{- include "generic.labels" . | nindent 4 }}
+  annotations:
+    helm.sh/hook: pre-install,pre-upgrade
+    helm.sh/hook-delete-policy: hook-succeeded,hook-failed,before-hook-creation
+    helm.sh/hook-weight: "0"
+data: 
+  {{- range $k, $v := .Values.migrate.secretEnv }}
+  {{ $k }}: {{$v | b64enc | quote }}
+  {{- end }}
+{{- end }}

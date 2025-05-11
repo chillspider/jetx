@@ -1,0 +1,10 @@
+image:
+  repository: zodinettech/wash24-replica-db-job
+  tag: "16.2"
+
+env:
+  SCHEDULE: "0 */12 * * *"
+  SOURCE_HOST: "10.46.34.227"
+  SOURCE_PORT: "5432"
+  TARGET_HOST: db.tddebzijpyknmlmhqzyz.supabase.co
+  TARGET_PORT: "5432"

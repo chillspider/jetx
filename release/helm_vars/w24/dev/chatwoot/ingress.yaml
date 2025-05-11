@@ -1,0 +1,32 @@
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: chatwoot
+  namespace: dev
+  annotations:
+    kubernetes.io/tls-acme: "true"
+    cert-manager.io/cluster-issuer: "default"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/proxy-body-size: 64m
+    nginx.ingress.kubernetes.io/configuration-snippet: |
+      proxy_set_header X-Forwarded-Proto $scheme;
+      proxy_set_header X-Forwarded-Ssl on;
+spec:
+  ingressClassName: nginx
+  tls:
+    - hosts:
+        - cs.dev.wash24h.io
+      secretName: cs-cert
+  rules:
+  - host: cs.dev.wash24h.io
+    http:
+      paths:
+        - backend:
+            service:
+              name: chatwoot
+              port:
+                number: 3000
+          path: /
+          pathType: Prefix

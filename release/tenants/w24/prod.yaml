@@ -1,0 +1,23 @@
+---
+bases:
+  - "../_base.yaml" 
+---
+{{ readFile "../meta/_templates.yaml" }}
+
+commonLabels:
+  tenant: prod
+  environment: w24
+
+releases:
+  - <<: *app
+  - <<: *backend_api
+  - <<: *voucher_api
+  - <<: *regcred
+  - <<: *emqx
+  - <<: *chatwoot
+  - <<: *pgadmin
+  - <<: *postgres
+  - <<: *redis_chatwoot
+  - <<: *replica_db_job
+  - <<: *car_detector_api
+  - <<: *car_detector_web

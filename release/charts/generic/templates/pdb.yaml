@@ -1,0 +1,20 @@
+{{- if (or (ge (int .Values.replicaCount) 2) (.Values.pdb.enabled)) }}
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: {{ include "generic.fullname" . }}
+spec:
+  {{ if not (and .Values.pdb.minAvailable .Values.pdb.maxUnavailable) -}}
+  minAvailable: {{ max 1 (sub (int .Values.replicaCount) 1) }}
+  {{- end }}
+  {{- with .Values.pdb.minAvailable }}
+  minAvailable: {{ . }}
+  {{- end }}
+  {{- with .Values.pdb.maxUnavailable }}
+  maxUnavailable: {{ . }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "generic.selectorLabels" . | nindent 6 }}
+{{- end }}

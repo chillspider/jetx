@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">@string/APP_NAME</string>
+    <string name="CodePushDeploymentKey">@string/CODE_PUSH_ANDROID_KEY</string>
+</resources>

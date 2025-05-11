@@ -1,0 +1,11 @@
+image:
+  repository: bitnami/postgresql
+  tag: 16.6.0
+  pullPolicy: IfNotPresent
+
+primary:
+  persistence:
+    enabled: true
+    size: 20Gi
+  readReplicas:
+    replicaCount: 1

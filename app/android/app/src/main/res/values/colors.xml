@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="splashscreen_bg">#000000</color>
+    <color name="bootsplash_background">#FD015C</color>
+    <color name="notification_icon">#FD015C</color>
+</resources>

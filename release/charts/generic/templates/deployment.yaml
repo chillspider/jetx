@@ -1,0 +1,143 @@
+{{- if not .Values.deployment.disabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "generic.fullname" . }}
+  labels:
+    {{- include "generic.labels" . | nindent 4 }}
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "generic.selectorLabels" . | nindent 6 }}
+  strategy:
+    rollingUpdate:
+      maxSurge: {{ .Values.maxSurge | default "100%" }}
+  template:
+    metadata:
+      annotations:
+      {{- with .Values.podAnnotations }}
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+        checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+        checksum/secret: {{ include (print $.Template.BasePath "/secret.yaml") . | sha256sum }}
+      labels:
+        {{- include "generic.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      topologySpreadConstraints:
+        # Do not schedule pods to the same host if there's a host without this pod
+        - maxSkew: 1
+          topologyKey: kubernetes.io/hostname
+          whenUnsatisfiable: DoNotSchedule
+          labelSelector:
+            matchLabels:
+        # Do not schedule pods to the same zone if there's a zone without this pod
+        - maxSkew: 1
+          topologyKey: topology.kubernetes.io/zone
+          whenUnsatisfiable: ScheduleAnyway
+          labelSelector:
+            matchLabels:
+      serviceAccountName: {{ include "generic.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: backend
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          {{- with .Values.command }}
+          command: {{ toJson . }}
+          {{- end }}
+          {{- with .Values.args }}
+          args: {{ toJson . }}
+          {{- end }}
+          envFrom: 
+            - configMapRef: 
+                name: {{ printf "%s-env" (include "generic.fullname" .) | quote }}
+            - secretRef:
+                name: {{ printf "%s-env" (include "generic.fullname" .) | quote }}
+          env:
+          {{- range $k, $v := .Values.extraEnv }}
+            - name: {{ $k }}
+              {{- toYaml $v | nindent 14}}
+          {{- end }}
+          {{- if gt (len .Values.services) 0 }}
+          ports:
+            {{- range $i, $svc := .Values.services }}
+            - name: {{ $svc.name }}
+              containerPort: {{ $svc.port }}
+              protocol: {{ default "TCP" $svc.proto}}
+            {{- end }}
+          {{- end }}
+          {{- if .Values.livenessProbe }}
+          livenessProbe:
+            {{- toYaml .Values.livenessProbe | nindent 12 }}
+          {{- end }}
+          {{- if .Values.readinessProbe }}
+          readinessProbe:
+            {{- toYaml .Values.readinessProbe | nindent 12 }}
+          {{- end }}
+          {{- if .Values.startupProbe }}
+          startupProbe:
+            {{- toYaml .Values.startupProbe | nindent 12 }}
+          {{- end }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          volumeMounts:
+           {{- if .Values.fileMounts }}
+              {{- range $key, $file := .Values.fileMounts }}
+              - name: {{ $key }}-file-volume
+                mountPath: {{ print $file.mountPath "/" $file.path | clean }}
+                subPath: {{ $file.path }}
+                readOnly: true
+              {{- end }}
+            {{- end }}
+           {{- if .Values.secretMounts }}
+              {{- range $key, $file := .Values.secretMounts }}
+              - name: {{ $key }}-sec-volume
+                mountPath: {{ print $file.mountPath "/" $file.path | clean }}
+                subPath: {{ $file.path }}
+                readOnly: true
+              {{- end }}
+            {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      volumes:
+      {{- if .Values.fileMounts }}
+        {{- range $key, $file := .Values.fileMounts }}
+        - name: {{ $key }}-file-volume
+          configMap:
+            name: {{ printf "%s-files" (include "generic.fullname" $) | quote }} 
+            items:
+            - key: {{ $key }}
+              path: {{ $file.path }}
+        {{- end }}
+      {{- end }}
+      {{- if .Values.secretMounts }}
+        {{- range $key, $file := .Values.secretMounts }}
+        - name: {{ $key }}-sec-volume
+          secret:
+            secretName: {{ printf "%s-files" (include "generic.fullname" $) | quote }} 
+            items:
+            - key: {{ $key }}
+              path: {{ $file.path }}
+        {{- end }}
+      {{- end }}
+{{- end }}

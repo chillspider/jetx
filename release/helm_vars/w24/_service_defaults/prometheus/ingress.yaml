@@ -1,0 +1,38 @@
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: grafana
+  namespace: prometheus
+  labels:
+    app.kubernetes.io/name: grafana
+  annotations:
+    kubernetes.io/tls-acme: "true"
+    cert-manager.io/cluster-issuer: "default"
+    nginx.ingress.kubernetes.io/backend-protocol: "http"
+    nginx.ingress.kubernetes.io/use-forwarded-headers: "true"
+    nginx.ingress.kubernetes.io/enable-real-ip: "true"
+    nginx.ingress.kubernetes.io/proxy-request-buffering: "off"
+    nginx.ingress.kubernetes.io/proxy-connect-timeout: "120"
+    nginx.ingress.kubernetes.io/proxy-http-version: "1.1"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
+    nginx.ingress.kubernetes.io/use-proxy-protocol: "false"
+    nginx.ingress.kubernetes.io/proxy-protocol-header-timeout: "5s"
+spec:
+  ingressClassName: nginx
+  tls:
+    - hosts:
+        - grafana.vn01.wash24h.io
+      secretName: grafana-cert
+  rules:
+  - host: grafana.vn01.wash24h.io
+    http:
+      paths:
+        - backend:
+            service:
+              name: prometheus-grafana
+              port:
+                number: 80
+          path: /
+          pathType: Prefix

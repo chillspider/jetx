@@ -1,0 +1,10 @@
+bases:
+  - _base.yaml
+
+helmfiles:
+{{ range $index,$item := readDir "w24" }}
+  - {{ $item }}
+{{- end }}
+
+commonLabels:
+  environment: w24

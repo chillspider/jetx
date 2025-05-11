@@ -1,0 +1,10 @@
+datacenter: w24
+tenant: w24
+env:
+
+ingress:
+  annotations:
+    cert-manager.io/cluster-issuer: "default"
+  domains:
+    - vn01.wash24h.io
+  

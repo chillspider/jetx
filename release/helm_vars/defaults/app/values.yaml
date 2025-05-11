@@ -1,0 +1,42 @@
+---
+image:
+  repository: zodinettech/w24-app-web
+  pullPolicy: IfNotPresent
+env:
+
+imagePullSecrets:
+  - name: regcred-dockerhub
+services:
+  - name: http
+    port: 80
+    targetPort: 4000
+
+resources:
+  requests:
+#    cpu: 100m
+#    memory: 256Mi
+ingress:
+  enabled: true
+  defaultBackend: true
+  subdomains:
+    - app
+  paths:
+    - path: /
+      pathType: Prefix
+      wildcard: true
+      serviceName: app
+      servicePort: 4000
+  pathOverrides:
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-body-size: "10m"
+
+livenessProbe: null
+readinessProbe: null
+startupProbe:
+  httpGet:
+    path: /
+    port: 4000
+  failureThreshold: 20
+  periodSeconds: 30
+podAnnotations:
+

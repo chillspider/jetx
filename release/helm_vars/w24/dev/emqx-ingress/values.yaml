@@ -1,0 +1,45 @@
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: mqtt
+  namespace: dev
+  labels:
+    app.kubernetes.io/name: mqtt
+  annotations:
+    kubernetes.io/tls-acme: "true"
+    cert-manager.io/cluster-issuer: "default"
+    nginx.ingress.kubernetes.io/backend-protocol: "http"
+    nginx.ingress.kubernetes.io/use-forwarded-headers: "true"
+    nginx.ingress.kubernetes.io/enable-real-ip: "true"
+    nginx.ingress.kubernetes.io/proxy-request-buffering: "off"
+    nginx.ingress.kubernetes.io/proxy-connect-timeout: "120"
+    nginx.ingress.kubernetes.io/proxy-http-version: "1.1"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
+    nginx.ingress.kubernetes.io/use-proxy-protocol: "false"
+    nginx.ingress.kubernetes.io/proxy-protocol-header-timeout: "5s"
+spec:
+  ingressClassName: nginx
+  tls:
+    - hosts:
+        - mqtt.dev.wash24h.io
+      secretName: mqtt-cert
+  rules:
+  - host: mqtt.dev.wash24h.io
+    http:
+      paths:
+        - backend:
+            service:
+              name: emqx
+              port:
+                number: 8083
+          path: /
+          pathType: Prefix
+        - path: /mqtt # Default in EMQx but make sure to match it if it changes
+          pathType: Prefix
+          backend:
+            service:
+              name: emqx
+              port:
+                number: 8083

@@ -1,0 +1,42 @@
+{
+  "language": "ts",
+  "collection": "@nestjs/schematics",
+  "sourceRoot": "src",
+  "compilerOptions": {
+    "plugins": [
+      "@nestjs/swagger/plugin"
+    ],
+    "assets": [
+      {
+        "include": "i18n/**/*",
+        "outDir": "dist/src/",
+        "watchAssets": true
+      },
+      {
+        "include": "templates/**/*.hbs",
+        "outDir": "dist/src/",
+        "watchAssets": true
+      },
+      {
+        "include": "templates/**/*.json",
+        "outDir": "dist/src/",
+        "watchAssets": true
+      },
+      {
+        "include": "views/**/*.hbs",
+        "outDir": "dist/src/",
+        "watchAssets": true
+      },
+      {
+        "include": "seeder/**/*.json",
+        "outDir": "dist/src/database/seeds",
+        "watchAssets": true
+      },
+      {
+        "include": "database/seeds/**",
+        "outDir": "dist/src/",
+        "watchAssets": true
+      }
+    ]
+  }
+}

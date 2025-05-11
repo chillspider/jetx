@@ -1,0 +1,21 @@
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: {{ .Values.name }}
+spec:
+  acme:
+    email: {{ .Values.acme.email | quote }}
+    server: {{ .Values.acme.server | quote }}
+    privateKeySecretRef:
+      name: {{ printf "%s-cert-key" .Values.name }}
+    solvers:
+    {{- if eq 0 (len .Values.solvers) }}
+    - dns01:
+        cloudflare:
+          email: "license@zodinet.com"
+          apiTokenSecretRef:
+            name: {{ .Values.cloudflare.name }}
+            key: {{ .Values.cloudflare.key }}
+    {{- else }}
+    {{ tpl (toYaml .Values.solvers) $ | nindent 6 }}
+    {{- end }}

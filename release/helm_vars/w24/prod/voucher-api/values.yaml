@@ -1,0 +1,34 @@
+image:
+  repository: "zodinettech/wash24-voucher-api"
+  tag: "v0.2.1"
+ingress:
+  annotations:
+    cert-manager.io/cluster-issuer: "default"
+  tls:
+    secretName: voucher-api
+internalIngress:
+  enabled: false
+migrate:
+  enabled: true
+  supported: true
+resources:
+  requests:
+  limits:
+    cpu: 1000m
+    memory: 1Gi
+env:
+  NODE_ENV: "production"
+  PORT: "3000"
+  HOST: "0.0.0.0"
+  ENABLE_SEEDING: "false"
+  ENABLE_DOCUMENTATION: "true"
+  SWAGGER_PATH: "swagger"
+  SWAGGER_SCHEME: "https"
+  DB_SSL: "false"
+  DB_TYPE: postgres
+  REDIS_CACHE_ENABLED: "true"
+  REDIS_HOST: "redis-master"
+  REDIS_PORT: "6379"
+  REDIS_PASSWORD: ""
+  REDIS_DB: "1"
+  BE_API_URL: http://backend-api

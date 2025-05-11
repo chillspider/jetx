@@ -1,0 +1,163 @@
+name: Apply a Tenant
+run-name: |
+  ${{ format('Deploying [{0}] {1}by @{2}',
+      github.event.inputs.tenant,
+      github.event.inputs.service == '' && '' ||
+        format('selecting {0}{1}{2}{3} ',
+          github.event.inputs.service,
+          github.event.inputs.image_tag == '' && '' || ':',
+          github.event.inputs.image_tag,
+          github.event.inputs.migrate_db == 'true' && ' with DB migrations' || ''),
+      github.actor) }}
+
+concurrency: "apply-${{ github.event.inputs.tenant }}"
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        type: choice
+        options:
+          - w24
+        required: true
+      tenant:
+        description: "The tenant in which you want to apply"
+        required: true
+        type: choice
+        options:
+          - prod
+          - staging
+      service:
+        type: choice
+        description: "The service you want to apply"
+        options:
+          - app
+          - backend-api
+          - voucher-api
+          - replica-db-job
+          - car-detector-api
+          - car-detector-web
+        required: true
+      image_tag:
+        description: The new image tag to deploy
+      migrate_db:
+        default: false
+        description: "Migrate the database for this service"
+        type: boolean
+
+jobs:
+  setup:
+    name: Setup
+    runs-on: ubuntu-latest
+    outputs:
+      runner: ${{ steps.runner.outputs.runner }}
+      kubeConfig: ${{ steps.kube_config.outputs.config }}
+      kubeContext: ${{ steps.kube_context.outputs.context }}
+    steps:
+      - name: Resolve Runner
+        id: runner
+        run: |
+          if [ ${{ inputs.environment }} == 'royal' ]; then
+            echo "runner=royal-linux-168" >> $GITHUB_OUTPUT
+          else
+            echo "runner=ubuntu-latest" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Resolve K8S Base64 KUBE Config
+        id: kube_config
+        run: |
+          if [ ${{ inputs.environment }} == 'w24' ]; then
+            echo "config=BASE64_KUBE_CONFIG" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Resolve Context
+        id: kube_context
+        run: |
+          if [ ${{ inputs.environment }} == 'w24' ]; then
+            echo "context= k8s-idc-f5cebe39" >> $GITHUB_OUTPUT
+          fi
+
+  run-apply:
+    needs: [setup]
+    name: Run Apply
+    runs-on: ${{ needs.setup.outputs.runner }}
+    environment: ${{ inputs.environment }}
+    permissions:
+      contents: "write"
+      id-token: "write"
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: ./.github/actions/init-k8s
+        with:
+          cluster_name: ${{ inputs.environment }}
+          environment: ${{ inputs.environment }}
+          BASE64_KUBE_CONFIG: ${{ secrets[needs.setup.outputs.kubeConfig] }}
+          BASE64_PGP_PRIVATE_KEY: ${{ secrets.BASE64_PGP_PRIVATE_KEY }}
+          KUBE_CONTEXT: ${{ needs.setup.outputs.kubeContext }}
+
+      - name: Validate parameters
+        id: validate_params
+        run: |
+          ARGS_OUT="--file tenants/${{ inputs.environment }}/${{ inputs.tenant }}.yaml --environment ${{ inputs.environment }} --log-level info --no-hooks --selector name=${{ inputs.service }}"
+
+          if [[ ! -f tenants/${{ inputs.environment }}/${{ inputs.tenant }}.yaml ]]; then
+            echo "Helmfile for ${{ inputs.tenant }} does not exist. \
+                  Create tenants/${{ inputs.environment }}/${{ inputs.tenant }}.yaml"
+            exit 1
+          fi
+
+          helmfile -e ${{ inputs.environment }} -f tenants/${{ inputs.environment }}/${{ inputs.tenant }}.yaml repos
+
+          BUILT_HELMFILE="$(helmfile -e ${{ inputs.environment }} -f tenants/${{ inputs.environment }}/${{ inputs.tenant}}.yaml build --selector "name=${{ inputs.service}}")"
+
+          if [[ -n "${{ inputs.image_tag }}" ]]; then
+            SET="--set image.tag=${{inputs.image_tag}} --set migrate.enabled=${{ toJSON(inputs.migrate_db) }}"
+            ARGS_OUT="$SET $ARGS_OUT"
+            echo "set=$SET" >> $GITHUB_OUTPUT
+          fi
+
+          echo "helmfile_args=$ARGS_OUT" >> $GITHUB_OUTPUT
+
+      - name: helmfile apply
+        run: |
+          set -eo pipefail
+
+          helmfile apply \
+            ${{ steps.validate_params.outputs.helmfile_args }} | \
+          tee raw_comment.txt
+
+          python .github/format_github_comment.py raw_comment.txt \
+            --env ${{ inputs.environment }} \
+            --outfile "$GITHUB_STEP_SUMMARY"
+
+      - name: checkout newest ref of main
+        if: ${{ inputs.image_tag != '' && inputs.service != '' }}
+        uses: actions/checkout@v3
+
+      - name: Write image tag to helm_vars
+        if: ${{ inputs.image_tag != '' && inputs.service != '' }}
+        run: >
+          mkdir -pv
+          "helm_vars/${{ inputs.environment }}/${{ inputs.tenant }}/${{ inputs.service }}/"
+
+          touch
+          "helm_vars/${{ inputs.environment }}/${{ inputs.tenant }}/${{ inputs.service }}/values.yaml"
+
+          yq -i '.image.tag |= "${{ inputs.image_tag }}"'
+          "helm_vars/${{ inputs.environment }}/${{ inputs.tenant }}/${{ inputs.service }}/values.yaml"
+
+      - uses: stefanzweifel/git-auto-commit-action@v4
+        if: ${{ inputs.image_tag != '' && inputs.service != '' }}
+        with:
+          commit_message: "${{ inputs.environment }}: ${{ inputs.tenant }}: ${{ inputs.service }}: bump image tag to ${{ inputs.image_tag }}"
+
+
+      - uses: 8398a7/action-slack@v3
+        with:
+          status: ${{ job.status }}
+          author_name: ${{ github.repository_owner }}
+          text: Deploy ${{ inputs.environment }}/${{ inputs.tenant }} with ${{ inputs.service }}:${{ inputs.image_tag }}
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK  }}
+        if: failure()

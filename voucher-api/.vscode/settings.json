@@ -1,0 +1,32 @@
+{
+  "cSpell.words": [
+    "Automapper",
+    "cqrs",
+    "dasherize",
+    "Dtos",
+    "handfish",
+    "hygen",
+    "ILIKE",
+    "Injectable",
+    "microservices",
+    "nats",
+    "nestjs",
+    "Nflow",
+    "ormconfig",
+    "PARAMTYPES",
+    "postgres",
+    "recaptchavalue",
+    "Signin",
+    "sonarjs",
+    "typeorm"
+  ],
+  "editor.defaultFormatter": "dbaeumer.vscode-eslint",
+  "editor.formatOnSave": true,
+  "editor.detectIndentation": false,
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit",
+    "source.fixAll": "explicit"
+  },
+  "typescript.preferences.importModuleSpecifier": "relative",
+  "javascript.preferences.importModuleSpecifier": "relative"
+}

@@ -1,0 +1,109 @@
+name: Initialize Kubernetes Access
+
+inputs:
+  cluster_name:
+    required: true
+    type: string
+  helmfile_version:
+    default: "0.166.0"
+  sops_version:
+    default: "v3.8.1"
+  environment:
+    type: environment
+    required: true
+  install_helmfile:
+    default: true
+  BASE64_KUBE_CONFIG:
+    required: true
+    type: string
+  BASE64_PGP_PRIVATE_KEY:
+    required: true
+    type: string
+  KUBE_CONTEXT:
+    required: true
+    type: string
+
+runs:
+  using: "composite"
+  steps:
+    - name: Set HOME
+      shell: bash
+      run: echo "HOME=/root" >> $GITHUB_ENV
+
+    - name: Install Helm
+      shell: bash
+      run: |
+        if [ -f "/usr/local/bin/helm" ]; then
+           echo "File '/usr/local/bin/helm' already exists."
+        else
+          curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+        fi
+
+    - name: Install Helmfile
+      shell: bash
+      run: |
+        if [ -f "/usr/local/bin/helmfile" ]; then
+          echo "File '/usr/local/bin/helmfile' already exists."
+        else
+          wget https://github.com/helmfile/helmfile/releases/download/v${{ inputs.helmfile_version }}/helmfile_${{ inputs.helmfile_version }}_linux_amd64.tar.gz
+          tar -xzf helmfile_${{ inputs.helmfile_version }}_linux_amd64.tar.gz
+          chmod +x helmfile
+          sudo mv helmfile /usr/local/bin/helmfile
+        fi
+
+    - name: Install helm-secrets plugin
+      shell: bash
+      run: |
+        if ! helm plugin list | grep -q 'secrets'; then
+            helm plugin install https://github.com/jkroepke/helm-secrets
+        else
+          echo "helm-secrets plugin already installed"
+        fi
+
+        if ! helm plugin list | grep -q 'diff'; then
+          helm plugin install https://github.com/databus23/helm-diff
+        else
+          echo "helm-diff plugin already installed"
+        fi
+
+    - name: install helmfile plugins and sops
+      shell: bash
+      if: ${{ inputs.install_helmfile }}
+      run: |
+        if [ -f "/usr/local/bin/sops" ]; then
+            echo "File '/usr/local/bin/sops' already exists."
+        else
+          wget \
+            -O "/usr/local/bin/sops" \
+            "https://github.com/getsops/sops/releases/download/${{ inputs.sops_version }}/sops-${{ inputs.sops_version }}.linux.amd64"
+
+          chmod 755 "/usr/local/bin/sops"
+        fi
+
+        cat <<EOF >> $GITHUB_ENV
+        HELMFILE_GOCCY_GOYAML=true
+        HELM_DIFF_THREE_WAY_MERGE=true
+        HELM_DIFF_NORMALIZE_MANIFESTS=true
+        HELM_TLS_ENABLE=true
+        EOF
+
+    - name: Import GPG Key
+      shell: bash
+      run: |
+        echo "${{ inputs.BASE64_PGP_PRIVATE_KEY }}" | base64 -d > private.key && gpg --import private.key
+
+    - name: Set KUBECONFIG environment variable
+      shell: bash # Ensure the shell property is defined
+      run: echo "KUBECONFIG=$HOME/.kube/kube-config" >> $GITHUB_ENV
+
+    - name: Import KUBECONFIG
+      shell: bash
+      run: |
+        mkdir -p $HOME/.kube
+        echo "${{ inputs.BASE64_KUBE_CONFIG }}" | base64 -d > $HOME/.kube/kube-config
+        chmod go-r $HOME/.kube/kube-config
+
+    - name: Kubernetes use context
+      shell: bash
+      run: |
+        kubectl config use-context ${{ inputs.KUBE_CONTEXT }} && kubectl cluster-info

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CLIENT_ID</key>
+	<string>671821638452-35g5lrv553bqgb99ac15u0lovbldfvis.apps.googleusercontent.com</string>
+	<key>REVERSED_CLIENT_ID</key>
+	<string>com.googleusercontent.apps.671821638452-35g5lrv553bqgb99ac15u0lovbldfvis</string>
+	<key>ANDROID_CLIENT_ID</key>
+	<string>671821638452-ntv81qce8fs3rj0v8f0rf8c58dofmjgs.apps.googleusercontent.com</string>
+	<key>API_KEY</key>
+	<string>AIzaSyA24UnVwxFDuAqADWqbHToudg1HXYVC4Hk</string>
+	<key>GCM_SENDER_ID</key>
+	<string>671821638452</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>com.wash.jetx</string>
+	<key>PROJECT_ID</key>
+	<string>wash24h-app</string>
+	<key>STORAGE_BUCKET</key>
+	<string>wash24h-app.appspot.com</string>
+	<key>IS_ADS_ENABLED</key>
+	<false></false>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true></true>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:671821638452:ios:3fd28c8ca35b7ba6245361</string>
+</dict>
+</plist>

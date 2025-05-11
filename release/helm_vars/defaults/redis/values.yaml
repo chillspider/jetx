@@ -1,0 +1,13 @@
+global:
+  redis:
+    usePassword: false
+    password: ""
+    
+master:
+  disableCommands:
+
+replica:
+  disableCommands:
+
+securityContext:
+  enabled: false

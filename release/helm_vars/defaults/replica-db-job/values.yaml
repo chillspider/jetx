@@ -1,0 +1,7 @@
+---
+image:
+  repository: zodienttech/wash24-replica-db-job
+  pullPolicy: IfNotPresent
+
+imagePullSecrets:
+  - name: regcred-dockerhub

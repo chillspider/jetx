@@ -1,0 +1,20 @@
+{
+	"cSpell.words": [
+		"gpay",
+		"JETX",
+		"MQTT",
+		"onrelease",
+		"qrcode",
+		"QRPAY",
+		"sonner",
+		"turbopack"
+	],
+	"editor.formatOnSave": true,
+	"editor.codeActionsOnSave": {
+		"source.fixAll.eslint": "always",
+		"source.organizeImports": "always"
+	},
+	"files.associations": {
+		"*.css": "tailwindcss"
+	}
+}

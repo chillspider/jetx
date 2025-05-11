@@ -1,0 +1,20 @@
+---
+bases:
+  - "../_base.yaml" 
+---
+{{ readFile "../meta/_templates.yaml" }}
+
+commonLabels:
+  tenant: dev
+  environment: w24
+
+releases:
+  - <<: *app
+  - <<: *backend_api
+  - <<: *voucher_api
+  - <<: *regcred
+  - <<: *emqx
+  - <<: *redis
+  - <<: *postgres
+  - <<: *kiosk_web
+  - <<: *chatwoot

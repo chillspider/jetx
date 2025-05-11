@@ -1,0 +1,8 @@
+export enum YglOrderStatus {
+  CREATED = 1000,
+  PAYED = 2000,
+  SERVING = 2001,
+  WAIT_REFUND = 3000,
+  REFUNDED = 4000,
+  COMPLETE = 5000,
+}

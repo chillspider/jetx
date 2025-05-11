@@ -1,0 +1,100 @@
+{{- range $name, $cronJob := $.Values.cronJobs -}}
+{{- if (or $cronJob.enabled (hasKey $cronJob "enabled" | not)) }}
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  {{- $fullName := include "generic.fullname" $ }}
+  {{- if (eq $.Values.fullnameOverride "") }}
+  {{- $fullName = printf "%s-%s" $name $fullName | trunc 52 | trimSuffix "-" }}
+  {{- else }}
+  {{- $fullName = printf "%s" $name | trunc 52 | trimSuffix "-" }}
+  {{- end }}
+  name: {{ $fullName }}
+spec:
+  schedule: {{ $cronJob.schedule | quote }}
+  concurrencyPolicy: {{ $cronJob.concurrencyPolicy | default "Forbid" }}
+  jobTemplate:
+    spec:
+      ttlSecondsAfterFinished: {{ $cronJob.ttlSecondsAfterFinished | default 900 }}
+      backoffLimit: 0
+      template:
+        metadata:
+          labels:
+            {{- include "generic.cronLabels" (dict "Values" $.Values "Chart" $.Chart "Release" $.Release "name" $name)  | nindent 12 }}
+            zodinet.com/job-name: {{ $name | quote }}
+          annotations:
+            {{- with $cronJob.podAnnotations }}
+              {{- toYaml . | nindent 12 }}
+            {{- end }}
+            {{- with $.Values.podAnnotations }}
+              {{- toYaml . | nindent 12 }}
+            {{- end }}
+        spec:
+          {{- with $.Values.imagePullSecrets }}
+          imagePullSecrets:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          serviceAccountName: {{ include "generic.serviceAccountName" $ }}
+          containers:
+            - name: {{ $fullName }}
+              image: {{ printf "%s:%s" (default $.Values.image.repository $cronJob.image) (default (default $.Chart.AppVersion $.Values.image.tag) $cronJob.tag) }}
+              command: {{ default nil (toJson $cronJob.command) }}
+              args: {{ default nil (toJson $cronJob.args) }}
+              resources:
+                {{- $cronJob.resources | toYaml | nindent 16 }}
+              envFrom:
+                - configMapRef:
+                    name: {{ printf "%s-env" (include "generic.fullname" $) | quote }}
+                - secretRef:
+                    name: {{ printf "%s-env" (include "generic.fullname" $) | quote }}
+              volumeMounts:
+              {{- if $.Values.fileMounts }}
+                {{- range $key, $file := $.Values.fileMounts }}
+                - name: {{ $key }}-file-volume
+                  mountPath: {{ print $file.mountPath "/" $file.path | clean }}
+                  subPath: {{ $file.path }}
+                  readOnly: true
+                {{- end }}
+              {{- end }}
+              {{- if $.Values.secretMounts }}
+                {{- range $key, $secret := $.Values.secretMounts }}
+                - name: {{ $key }}-secret-volume
+                  mountPath: {{ print $secret.mountPath "/" $secret.path | clean }}
+                  subPath: {{ $secret.path }}
+                  readOnly: true
+                {{- end }}
+              {{- end }}
+            {{- if $.Values.extraVolumeMounts }}
+              {{- toYaml $.Values.extraVolumeMounts | nindent 16 }}
+            {{- end }}
+          volumes:
+          {{- if $.Values.fileMounts }}
+            {{- range $key, $file := $.Values.fileMounts }}
+            - name: {{ $key }}-file-volume
+              configMap:
+                name: {{ $.Release.Name }}-configmap
+                items:
+                - key: {{ $key }}
+                  path: {{ $file.path }}
+            {{- end }}
+          {{- end }}
+          {{- if $.Values.secretMounts }}
+            {{- range $key, $secret := $.Values.secretMounts }}
+            - name: {{ $key }}-secret-volume
+              secret:
+                secretName: {{ $.Release.Name }}-files
+                items:
+                - key: {{ $key }}
+                  path: {{ $secret.path }}
+            {{- end }}
+          {{- end }}
+          {{- if $.Values.extraVolumes }}
+            {{- toYaml $.Values.extraVolumes | nindent 12 }}
+          {{- end }}
+          restartPolicy: {{ $cronJob.restartPolicy | default "Never" | quote}}
+          {{- if  $cronJob.serviceAccountName }}
+          serviceAccountName: {{ $cronJob.serviceAccountName }}
+          {{- end }}
+---
+{{- end }}
+{{- end }}

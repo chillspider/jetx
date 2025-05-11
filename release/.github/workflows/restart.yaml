@@ -1,0 +1,120 @@
+name: Restart
+run-name: |
+  ${{ format( 'Restart of {0} in {1}/{2} by {3}', github.event.inputs.service, github.event.inputs.environment, github.event.inputs.tenant, github.actor) }}
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        type: choice
+        options:
+          - dev
+          - bitebolt
+          - ffood
+          - santa
+          - royal
+        required: true
+      tenant:
+        description: "The tenant in which you want to apply"
+        required: true
+        type: choice
+        options:
+          - dev
+          - bitebolt-dev
+          - bitebolt
+          - ffood
+          - santa
+          - nuvioo
+      service:
+        description: "The service you want to restart"
+        type: choice
+        options:
+          - portal-web
+          - portal-api
+          - pos-web
+          - pos-api
+          - pos-portal
+          - cron
+          - inventory-api
+          - inventory-portal
+          - analytics
+          - giftcard-portal
+          - giftcard-api
+          - customer-api
+          - tax-portal
+          - tax-api
+          - fumeli-web
+          - crm-api
+          - common-api
+          - notification-api
+          - paygate-api
+          - market-web
+          - market-api
+
+
+jobs:
+  setup:
+    name: Setup
+    runs-on: ubuntu-latest
+    outputs:
+      runner: ${{ steps.runner.outputs.runner }}
+      kubeConfig: ${{ steps.kube_config.outputs.config }}
+      kubeContext: ${{ steps.kube_context.outputs.context }}
+    steps:
+      - name: Resolve Runner
+        id: runner
+        run: |
+          if [ ${{ inputs.environment }} == 'royal' ]; then
+            echo "runner=royal-linux-168" >> $GITHUB_OUTPUT
+          else
+            echo "runner=ubuntu-latest" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Resolve K8S Base64 KUBE Config
+        id: kube_config
+        run: |
+          if [ ${{ inputs.environment }} == 'royal' ]; then
+            echo "config=BASE64_ROYAL_KUBE_CONFIG" >> $GITHUB_OUTPUT
+          else
+            echo "config=BASE64_KUBE_CONFIG" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Resolve Context
+        id: kube_context
+        run: |
+          if [ ${{ inputs.environment }} == 'royal' ]; then
+            echo "context=192-168-1-168-royal" >> $GITHUB_OUTPUT
+          elif [ ${{ inputs.environment }} == "santa" ]; then
+            echo "context=192-168-1-168-royal" >> $GITHUB_OUTPUT
+          elif [ ${{ inputs.environment }} == "ffood" ]; then
+            echo "context=103-232-123-19-ffood" >> $GITHUB_OUTPUT
+          else
+            echo "context=SantaMarket" >> $GITHUB_OUTPUT
+          fi
+
+  restart:
+    needs: [setup]
+    name: restart service
+    runs-on: ${{ needs.setup.outputs.runner }}
+    environment: ${{ inputs.environment }}
+    permissions:
+      contents: "read"
+      id-token: "write"
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: ./.github/actions/init-k8s
+        with:
+          cluster_name: ${{ inputs.environment }}
+          environment: ${{ inputs.environment }}
+          BASE64_KUBE_CONFIG: ${{ secrets[needs.setup.outputs.kubeConfig] }}
+          BASE64_PGP_PRIVATE_KEY: ${{ secrets.BASE64_PGP_PRIVATE_KEY }}
+          DIGITALOCEAN_ACCESS_TOKEN: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+          KUBE_CONTEXT: ${{ needs.setup.outputs.kubeContext }}
+        
+      - name: Run restart 
+        run: >
+          kubectl
+          -n "${{ inputs.tenant }}"
+          rollout restart
+          deployment "${{ inputs.service }}"

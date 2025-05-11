@@ -1,0 +1,21 @@
+env:
+  HTTP_HOST: 0.0.0.0
+
+extraEnv:
+
+imagePullSecrets:
+  - name: regcred-dockerhub
+livenessProbe:
+readinessProbe:
+ingress:
+  className: nginx
+  annotations:
+    cert-manager.io/cluster-issuer: "default"
+internalIngress:
+  redirect_https: true
+  className: nginx-internal
+  annotations:
+    cert-manager.io/cluster-issuer: "default"
+  paths:
+    - path: /
+      pathType: Prefix

@@ -1,0 +1,31 @@
+{
+	"title": "Gọi món",
+	"payment-title": "Thanh toán",
+	"add-more": "Thêm món",
+	"summary": "Tóm tắt đơn hàng",
+	"subtotal": "Tổng tạm tính",
+	"total": "Tổng cộng",
+	"order-sheet-title": "Chi tiết đơn hàng",
+	"order-status-title": "Trạng thái đơn hàng",
+	"order-status": {
+		"pending": "Đang xử lý...",
+		"processing": "Đang xử lý...",
+		"completed": "Đã hoàn thành",
+		"canceled": "Đã hủy",
+		"failed": "Thất bại",
+		"refunded": "Đã hoàn tiền"
+	},
+	"order": "Đơn hàng",
+	"back-to-process": "Quay lại tiến trình rửa",
+	"product-filter": "Bộ lọc tìm kiếm",
+	"category": "Danh mục",
+	"confirm": "Xác nhận",
+	"search": "Tìm kiếm",
+	"filter": "Lọc",
+	"extra-fee": "Phụ phí",
+	"tax": "Thuế",
+	"discount": "Giảm giá",
+	"out-of-stock": "{{product}} đã hết hàng",
+	"product-not-found": "Không tìm thấy sản phẩm",
+	"order-history-empty": "Không có đơn hàng nào"
+}

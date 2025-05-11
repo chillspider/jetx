@@ -1,0 +1,24 @@
+image:
+  repository: "zodinettech/wash24-kiosk-web"
+  tag: "11"
+ingress:
+  annotations:
+    cert-manager.io/cluster-issuer: "default"
+  tls:
+    secretName: kiosk-web
+internalIngress:
+  enabled: false
+resources:
+  requests:
+  limits:
+    cpu: 1000m
+    memory: 1Gi
+env:
+  NODE_ENV: production
+  SECRET_KEY: B5xHal6DTDKK7J9RzO11X1TNrX84XmsR
+  NEXT_PUBLIC_ENV: production
+  NEXT_PUBLIC_API_URL: https://backend-api.vn01.wash24h.io
+  NEXT_PUBLIC_MQTT_URL: mqtt.vn01.wash24h.io
+  NEXT_PUBLIC_BASE_URL: https://kiosk.vn01.wash24h.io
+
+

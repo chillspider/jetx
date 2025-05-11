@@ -1,0 +1,25 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ printf "%s-env" (include "generic.fullname" .) | quote }}
+  labels:
+    {{- include "generic.labels" . | nindent 4 }}
+data: 
+  SERVICE_VERSION: "{{ .Values.image.tag }}"
+  {{- range $k, $v := .Values.env}}
+  {{ $k }}: {{ tpl ($v | quote) $ }}
+  {{- end }}
+---
+{{- if .Values.fileMounts }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ printf "%s-files" (include "generic.fullname" .) | quote }}
+  labels:
+    {{- include "generic.labels" . | nindent 4 }}
+binaryData:
+  {{- range $key, $file := .Values.fileMounts }}
+  {{ $key }}: {{ $file.value | b64enc | quote }}
+  {{- end }}
+{{- end }}

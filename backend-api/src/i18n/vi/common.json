@@ -1,0 +1,76 @@
+{
+  "appName": "CÔNG TY CỔ PHẦN WASH 24H",
+  "address": "Tòa nhà Five Star, 28 Bis Mạc Đĩnh Chi, Phường Đa Kao, Quận 1, Thành phố Hồ Chí Minh, Việt Nam",
+  "contactDescription": "Đây là email tự động, vui lòng không trả lời. Nếu bạn có bất kỳ câu hỏi hoặc yêu cầu nào, vui lòng liên hệ với chúng tôi qua",
+  "or": "Hoặc",
+  "phone": "02873060886",
+  "email": "support@wash24h.com",
+  "copyright": "©2024 Allrights reserved wash24h.com",
+  "verify": "Xác thực",
+  "resetPassword": {
+    "title": "Đặt lại mật khẩu",
+    "welcome": "Xin chào, {user}",
+    "otpExpired": "Vui lòng sử dụng OTP bên dưới để đặt lại mật khẩu của bạn. OTP sẽ hết hạn trong {expired} phút. Không được chia sẻ OTP này với bất kỳ ai."
+  },
+  "paymentForOrder": "Thanh toán đơn hàng #{incrementId}",
+  "supportConfirmation": {
+    "title": "Xác nhận yêu cầu hỗ trợ từ Wash24h",
+    "welcome": "Xin chào, {user}",
+    "content": "Cảm ơn bạn đã liên hệ với đội ngũ hỗ trợ của Wash24h. Chúng tôi đã nhận được yêu cầu của bạn và sẽ phản hồi trong thời gian sớm nhất.",
+    "verifyEmail": "Nếu bạn chưa xác thực email, vui lòng nhấp vào liên kết dưới đây để xác thực. Việc xác thực là tùy chọn nhưng có thể giúp chúng tôi phục vụ bạn tốt hơn.",
+    "verifyEmailButton": "Xác thực email"
+  },
+  "emailVerification": {
+    "title": "Xác thực email",
+    "welcome": "Xin chào, {user}",
+    "content": "Vui lòng xác thực email {email} của bạn bằng cách nhấp vào nút bên dưới. Liên kết xác thực sẽ hết hạn sau {expiredTime} giờ.",
+    "successTitle": "Email đã được xác thực",
+    "successDescription": "Email của bạn đã được xác thực thành công.",
+    "failureTitle": "Xác thực email thất bại",
+    "failureDescription": "Liên kết xác thực email của bạn đã hết hạn hoặc không hợp lệ. Vui lòng thử lại."
+  },
+  "createTokenize": "Tạo phương thức thanh toán",
+  "paymentTokenize": "Phí tạm tạo phương thức thanh toán #{incrementId}",
+  "referralReport": {
+    "title": "Thống kê giới thiệu",
+    "createdAt": "Ngày ghi nhận",
+    "referralCode": "Mã giới thiệu",
+    "referralName": "Người giới thiệu",
+    "referralId": "ID Người giới thiệu",
+    "referralEmail": "Email Người giới thiệu",
+    "referredId": "ID Người được giới thiệu",
+    "referredName": "Người được giới thiệu",
+    "referredEmail": "Email Người được giới thiệu"
+  },
+  "refund": {
+    "title": "Danh sách yêu cầu hoàn tiền",
+    "no": "STT",
+    "customerId": "ID Khách hàng",
+    "customerName": "Khách hàng",
+    "amount": "Số tiền",
+    "paymentMethod": "Kênh thanh toán",
+    "accountInformation": "Thông tin tài khoản",
+    "approvedBy": "Phê duyệt bởi",
+    "approvedAt": "Ngày phê duyệt",
+    "description": "Danh sách yêu cầu hoàn tiền từ khách hàng đã được phê duyệt. Vui lòng kiểm tra thông tin chi tiết trong file đính kèm.",
+    "createTokenize": "Tạo phương thức thanh toán",
+    "selfStop": "Người dùng bấm huỷ rửa",
+    "abnormalStop": "Hệ thống bị lỗi",
+    "startFailed": "[Hệ thống] Người dùng không thể bắt đầu việc rửa xe do hệ thống gặp sự cố",
+    "refunded": "[Hệ thống] Đơn hàng gặp lỗi, cần hoàn tiền",
+    "fnbFailed": "[Hệ thống - POS] Đơn hàng FNB không thể thanh toán",
+    "fnbRefunded": "[Hệ thống - POS] Đơn hàng FNB bị từ chối",
+    "packageFailed": "[Hệ thống] Không thể tạo voucher cho gói rửa xe"
+  },
+  "voucher": {
+    "freeDeluxe": "Tặng lượt rửa DELUXE",
+    "freeDeluxeDesc": "Có thể bù tiền nâng lên Premium",
+    "endDate": "Hết hạn vào ngày {endAt}"
+  },
+  "paymentQR": "Thanh toan rua xe",
+  "washingService": "Gói rửa xe",
+  "support": {
+    "initMsg": "Đã nhận yêu cầu hỗ trợ <{supportId}>"
+  },
+  "serviceDifferencePrice": "Chênh lệch giá dịch vụ"
+}

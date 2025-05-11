@@ -1,0 +1,27 @@
+loki:
+  enabled: true
+  image:
+    repository: grafana/loki
+    tag: 2.6.0
+  config:
+    # consul:
+    #   enabled: false
+    server:
+      http_listen_address: "0.0.0.0"
+    limits_config:
+      retention_period: 30d
+    memberlist:
+      bind_addr:
+        - "${POD_IP}"
+  persistence:
+    enabled: true
+  env:
+    - name: POD_IP
+      valueFrom:
+        fieldRef:
+          fieldPath: status.podIP
+livenessProbe:
+  initialDelaySeconds: 60
+promtail:
+  enabled: true
+

@@ -1,0 +1,17 @@
+export enum NotificationDeepLink {
+  MainTab = 'home',
+  Account = 'account',
+  EditProfile = 'editProfile',
+  Voucher = 'voucher',
+  News = 'news',
+  History = 'history',
+  TermOfUse = 'termOfUse',
+  CreateVehicle = 'createVehicle',
+  Card = 'card',
+  About = 'about',
+  Support = 'support',
+  Referral = 'referral',
+  Package = 'package',
+  SupportDetail = 'supportDetail',
+  Order = 'order',
+}

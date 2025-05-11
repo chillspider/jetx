@@ -1,0 +1,77 @@
+image:
+  repository: chatwoot/chatwoot
+  tag: v3.15.0
+
+ingress:
+  enabled: true
+  annotations:
+    cert-manager.io/cluster-issuer: "default"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/proxy-body-size: 64m
+    nginx.ingress.kubernetes.io/configuration-snippet: |
+      proxy_set_header X-Forwarded-Proto $scheme;
+      proxy_set_header X-Forwarded-Ssl on;
+  tls:
+    - secretName: cs-chatwoot
+      hosts:
+        - cs.dev.wash24h.io
+  hosts:
+    - host: "cs.dev.wash24h.io"
+      paths:
+        - path: /
+          pathType: Prefix
+          backend:
+            service:
+              name: chatwoot
+              port:
+                number: 3000
+
+postgresql:
+  enabled: false
+  host: postgres-postgresql
+  auth:
+    postgresqlDatabase: customersupport
+    postgresqlUsername: postgres
+    postgresPassword: Zodinet@123
+    database: customersupport
+    username: postgres
+    password: Zodinet@123
+  postgresqlHost: postgres-postgresql
+  postgresqlPort: 5432
+
+redis:
+  enabled: false
+  host: redis-master
+  port: 6379
+  password: ""
+  auth:
+    password: ""
+
+web:
+  resources:
+    requests:
+      cpu: 250m
+      memory: 256Mi
+
+env:
+  RAILS_ENV: production
+  RAILS_LOG_TO_STDOUT: true
+  ACTIVE_STORAGE_SERVICE: local
+  # STORAGE_BUCKET_NAME: wash24h-cs
+  # STORAGE_ACCESS_KEY_ID: atm249561-s3user
+  # STORAGE_SECRET_ACCESS_KEY: v3pyMfC7N7zCNG/lsTOlkzH+xgWtaOqETwPwhjjh
+  # STORAGE_ENDPOINT: https://atm249561-s3user.vcos.cloudstorage.com.vn
+  SMTP_ADDRESS: smtp.sendgrid.net
+  SMTP_PASSWORD: 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
+  SMTP_USERNAME: apikey
+  SMTP_AUTHENTICATION: plain
+  SMTP_PORT: "587"
+  MAILER_SENDER_EMAIL: "[Dev] JETX Vietnam <noreply@wash24h.io>"
+  S3_BUCKET_NAME: wash24h-cs-dev
+  SECRET_KEY_BASE: Wash24hDev
+  FRONTEND_URL: https://cs.dev.wash24h.io
+  API_URL: https://cs.dev.wash24h.io
+  ENABLE_RACK_ATTACK: false
+  REDIS_PASSWORD: ""
+  REDIS_URL: redis://redis-master

@@ -1,0 +1,12 @@
+extraArgs:
+installCRDs: true
+featureGates: AdditionalCertificateOutputFormats=true
+
+webhook:
+  extraArgs:
+  - "--feature-gates=AdditionalCertificateOutputFormats=true"
+
+rbac:
+  create: true
+  roleRef: cert-manager-cainjector
+  serviceAccountName: cert-manager-cainjector

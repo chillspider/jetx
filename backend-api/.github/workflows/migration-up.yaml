@@ -1,0 +1,59 @@
+name: WASH24 API - Migration Up
+
+on:
+  workflow_dispatch:
+    inputs:
+      db_host:
+        description: 'Database Host'
+        required: true
+      db_port:
+        description: 'Database Port'
+        required: true
+        default: '5432'
+      db_name:
+        description: 'Database Name'
+        required: true
+      db_username:
+        description: 'Database Username'
+        required: true
+      db_password:
+        description: 'Database Password'
+        required: true
+
+env:
+  SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+
+jobs:
+  migrations:
+    name: Migration
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [16.16]
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: setup environment
+        run: |
+          echo "DATABASE_HOST=${{ inputs.db_host }}" >> $GITHUB_ENV
+          echo "DATABASE_PORT=${{ inputs.db_port }}" >> $GITHUB_ENV
+          echo "DATABASE_NAME=${{ inputs.db_name }}" >> $GITHUB_ENV
+          echo "DATABASE_USERNAME=${{ inputs.db_username }}" >> $GITHUB_ENV
+          echo "DATABASE_PASSWORD=${{ inputs.db_password }}" >> $GITHUB_ENV
+
+      - run: npm ci && npm run migration:run
+
+      - uses: 8398a7/action-slack@v3
+        with:
+          status: ${{ job.status }}
+          author_name: ${{ github.repository_owner }}
+          text: Build ${{ github.workflow }} on DEV - ${{ github.ref }}
+        env:
+          SLACK_WEBHOOK_URL: ${{ env.SLACK_WEBHOOK }}
+        if: always()

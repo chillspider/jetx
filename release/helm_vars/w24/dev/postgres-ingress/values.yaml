@@ -1,0 +1,51 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres-postgresql
+  namespace: dev
+spec:
+  selector:
+    app: postgres-postgresql
+  ports:
+  - protocol: TCP
+    port: 5432
+    targetPort: 5432
+  type: ClusterIP
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: tcp-services
+  namespace: ingress-nginx
+data:
+  5432: "dev/postgres-postgresql:5432"
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: postgres-postgresql
+  namespace: dev
+  labels:
+    app.kubernetes.io/name: postgres-postgresql
+  annotations:
+    cert-manager.io/cluster-issuer: "default"
+    nginx.ingress.kubernetes.io/backend-protocol: "TCP"
+    nginx.ingress.kubernetes.io/ssl-passthrough: "true"
+spec:
+  ingressClassName: nginx
+  tls:
+  - hosts:
+    - postgres.dev.wash24h.io
+    secretName: postgres-tls
+  rules:
+  - host: postgres.dev.wash24h.io
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: postgres-postgresql
+            port:
+              number: 5432

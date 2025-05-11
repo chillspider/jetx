@@ -1,0 +1,54 @@
+---
+
+image:
+  repository: zodinettech/wash24-kiosk-web
+  pullPolicy: IfNotPresent
+
+imagePullSecrets:
+  - name: regcred-dockerhub
+services:
+  - name: http
+    port: 80
+    targetPort: 3000
+
+resources:
+  requests:
+  #  cpu: 100m
+  #  memory: 256Mi
+  limit:
+    cpu: 100m
+    memory: 256Mi
+ingress:
+  enabled: true
+  defaultBackend: true
+  subdomains:
+    - kiosk
+  paths:
+    - path: /
+      pathType: Prefix
+      serviceName: kiosk-web
+      servicePort: 3000
+  pathOverrides:
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-body-size: "10m"
+  tls:
+
+livenessProbe:
+  httpGet:
+    path: /
+    port: 3000
+readinessProbe:
+  httpGet:
+    path: /
+    port: 3000
+startupProbe:
+  httpGet:
+    path: /
+    port: 3000
+  failureThreshold: 20
+  periodSeconds: 10
+podAnnotations:
+
+env:
+  HOSTNAME: 0.0.0.0
+  PORT: 3000

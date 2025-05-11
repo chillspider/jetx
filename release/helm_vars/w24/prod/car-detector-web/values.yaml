@@ -1,0 +1,19 @@
+image:
+  repository: "zodinettech/wash24-car-detector-web"
+  tag: "7"
+ingress:
+  annotations:
+    cert-manager.io/cluster-issuer: "default"
+  tls:
+    secretName: car-detector-web
+internalIngress:
+  enabled: false
+resources:
+  requests:
+  limits:
+    cpu: 1000m
+    memory: 1Gi
+env:
+  NEXT_PUBLIC_API_URL: https://backend-api.vn01.wash24h.io
+  SECRET_KEY: ttNeHXeF22ZkM0Ds7bIYafWXrEpVMaj6
+

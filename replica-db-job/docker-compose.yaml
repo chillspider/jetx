@@ -1,0 +1,31 @@
+# this file is here to facilitate development/testing
+# $ docker compose up -d --build --force-recreate
+
+services:
+  # postgres:
+  #   image: postgres:latest
+  #   restart: always
+  #   environment:
+  #     POSTGRES_DB: postgres
+  #     POSTGRES_USER: postgres
+  #     POSTGRES_PASSWORD: postgres
+  #   ports:
+  #     - "5432:5432"
+
+  sync:
+    build:
+      context: .
+      args:
+        ALPINE_VERSION: '3.16'
+    environment:
+      SCHEDULE: '0 */12 * * *'
+      SOURCE_DATABASE:
+      SOURCE_HOST:
+      SOURCE_PORT:
+      SOURCE_USER:
+      SOURCE_PASSWORD:
+      TARGET_DATABASE: postgres
+      TARGET_HOST: postgres
+      TARGET_PORT: 5432
+      TARGET_USER: postgres
+      TARGET_PASSWORD: postgres

@@ -1,0 +1,105 @@
+<html lang='en'>
+
+<head>
+  <meta charset='UTF-8' />
+  <meta name='viewport' content='width=device-width, initial-scale=1.0' />
+  <title>{{title}}</title>
+  <link href='https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap' rel='stylesheet' />
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Roboto', sans-serif;
+      background-color: #f7f8fa;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      color: #333;
+    }
+
+    .container {
+      max-width: 440px;
+      width: 100%;
+      background-color: #fff;
+      padding: 40px 30px;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      text-align: center;
+    }
+
+    .container h1 {
+      font-size: 1.8em;
+      margin-bottom: 20px;
+      font-weight: 700;
+      color: #333;
+    }
+
+    .container p {
+      font-size: 1em;
+      color: #666;
+      margin-bottom: 20px;
+      line-height: 1.6;
+    }
+
+    .icon {
+      font-size: 50px;
+      margin-bottom: 20px;
+    }
+
+    .icon.success {
+      color: #17c964;
+    }
+
+    .icon.failure {
+      color: #f04a5b;
+    }
+
+    .btn {
+      display: inline-block;
+      padding: 12px 24px;
+      font-size: 1em;
+      background-color: #0067e0;
+      color: #fff;
+      border-radius: 5px;
+      text-decoration: none;
+      font-weight: 500;
+      transition: background-color 0.3s ease;
+      margin-top: 20px;
+    }
+
+    .btn:hover {
+      background-color: #0058c9;
+    }
+
+    .btn.failure {
+      background-color: #f04a5b;
+    }
+
+    .btn.failure:hover {
+      background-color: #d53a4a;
+    }
+  </style>
+</head>
+
+<body>
+  {{#if success}}
+    <div class='container' id='success-message'>
+      <div class='icon success'>&#10003;</div>
+      <h1>{{successTitle}}</h1>
+      <p>{{successDescription}}</p>
+    </div>
+  {{else}}
+    <div class='container' id='failure-message'>
+      <div class='icon failure'>&#10007;</div>
+      <h1>{{failureTitle}}</h1>
+      <p>{{failureDescription}}</p>
+    </div>
+  {{/if}}
+</body>
+
+</html>

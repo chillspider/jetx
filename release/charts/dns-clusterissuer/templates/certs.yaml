@@ -1,0 +1,46 @@
+{{- range $_, $cert := .Values.certs }}
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: {{ $cert.name }}
+  {{- if $cert.namespace }}
+  namespace: {{ $cert.namespace }}
+  {{- end }}
+spec:
+  secretName: {{ printf "%s-cert" $cert.name | quote }} 
+  duration: 2160h # 90d
+  renewBefore: 360h # 15d
+  commonName: {{ tpl $cert.commonName $ | quote}} 
+  isCA: false
+  additionalOutputFormats:
+    - type: CombinedPEM
+    - type: DER
+  dnsNames: 
+  {{- range $dnsName := $cert.dnsNames }}
+    - {{ tpl $dnsName $ | quote }}
+  {{- end }}
+  issuerRef:
+    name: {{ $.Values.name }} 
+    kind: ClusterIssuer
+  {{- if $cert.jksPassword }}
+  keystores:
+    jks:
+      create: true
+      passwordSecretRef: # Password used to encrypt the keystore
+        key: password
+        name: {{ printf "%s-jks-password" $cert.name | quote}}
+  {{- end }}
+---
+{{- if $cert.jksPassword }}
+apiVersion: v1
+kind: Secret
+metadata:
+  name: {{ printf "%s-jks-password" $cert.name | quote}}
+  {{- if $cert.namespace }}
+  namespace: {{ $cert.namespace }}
+  {{- end }}
+data:
+  password: {{ $cert.jksPassword | b64enc | quote}}
+{{- end }}
+---
+{{- end }}

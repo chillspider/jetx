@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Poppins', sans-serif;
+      background: #ffffff;
+      font-size: 16px;
+    }
+    .container {
+      max-width: 680px;
+      margin: 0 auto;
+      padding: 24px;
+      background: #FFFCE7;
+    }
+    .header: {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .header-title {
+      font-size: 24px;
+      font-weight: 700;
+      color: #FF015C;
+      text-align: center;
+    }
+    .header-date {
+      font-size: 16px;
+      line-height: 30px;
+      text-align: right;
+    }
+    .main-content {
+      margin: 0;
+      margin: 48px 0;
+      padding: 48px 24px;
+      background: #ffffff;
+      border-radius: 16px;
+      text-align: center;
+    }
+    .help-text {
+      max-width: 600px;
+      margin: 40px auto 0;
+      text-align: center;
+      font-weight: 500;
+      color: #707172;
+    }
+    .help-link {
+      color: #FF015C;
+      text-decoration: none;
+    }
+    .footer {
+      width: 100%;
+      max-width: 600px;
+      margin: 20px auto 0;
+      text-align: center;
+      border-top: 1px solid #CCCCCD;
+    }
+    .footer p {
+      margin: 0;
+      color: #434343;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+    .footer .footer-title {
+      margin-top: 40px;
+      font-size: 16px;
+      font-weight: 600;
+    }
+    .footer .footer-sub {
+      margin-top: 2px;
+      font-size: 12px;
+      font-weight: 400;
+      color: #707172;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1 class="header-title">{{appName}}</h1>
+    </div>
+    <main>
+      <div class="main-content">
+        {{{content}}}
+      </div>
+      <p class="help-text">
+        {{contactDescription}} <a href="tel:{{phone}}" class="help-link">{{phone}}</a> {{or}}
+        <a href="mailto:{{email}}" class="help-link">{{email}}</a>
+      </p>
+    </main>
+    <div class="footer">
+      <h3 class="footer-title">{{appName}}</h3>
+      <h5 class="footer-sub">{{address}}</h5>
+      <h5 class="footer-sub" style="margin-top: 16px;">{{copyright}}</h5>
+    </div>
+  </div>
+</body>
+</html>

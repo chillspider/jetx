@@ -1,0 +1,14 @@
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: csi-driver-nfs-default-sc
+  annotations:
+    storageclass.kubernetes.io/is-default-class: "true"
+provisioner: nfs.csi.k8s.io
+parameters:
+  server: 10.46.34.238 # IP of nfs server
+  share: /data/mydata
+reclaimPolicy: Delete
+mountOptions:
+  - nfsvers=4.1
+volumeBindingMode: Immediate

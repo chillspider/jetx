@@ -1,0 +1,16 @@
+image:
+  repository: "zodinettech/wash24-car-detector-api"
+  tag: "2"
+ingress:
+  enabled: false
+internalIngress:
+  enabled: false
+migrate:
+  enabled: false
+  supported: false
+resources:
+  requests:
+  limits:
+    cpu: 1000m
+    memory: 1Gi
+env:

@@ -1,0 +1,233 @@
+---
+templates:
+  base: &base
+    namespace: "{{ .Release.Labels.tenant }}"
+    installedTemplate: "{{ eq .Environment.Name .Release.Labels.environment }}"
+    chart: ../../charts/generic
+    missingFileHandler: Debug
+    atomic: true
+    values:
+      - ../../helm_vars/defaults/values.yaml
+      - ../../helm_vars/defaults/values.yaml.gotmpl
+      - ../../helm_vars/defaults/{{ .Release.Name }}/values.yaml
+      - ../../helm_vars/defaults/{{ .Release.Name }}/values.yaml.gotmpl
+      - ../../helm_vars/{{ .Environment.Name }}/values.yaml
+      - ../../helm_vars/{{ .Environment.Name }}/values.yaml.gotmpl
+      - ../../helm_vars/{{ .Environment.Name }}/_service_defaults/{{ .Release.Name }}/values.yaml
+      - ../../helm_vars/{{ .Environment.Name }}/_service_defaults/{{ .Release.Name }}/values.yaml.gotmpl
+      - ../../helm_vars/{{ .Environment.Name }}/{{ .Release.Labels.tenant }}/values.yaml
+      - ../../helm_vars/{{ .Environment.Name }}/{{ .Release.Labels.tenant }}/values.yaml.gotmpl
+      - ../../helm_vars/{{ .Environment.Name }}/{{ .Release.Labels.tenant }}/{{ .Release.Name }}/values.yaml
+      - ../../helm_vars/{{ .Environment.Name }}/{{ .Release.Labels.tenant }}/{{ .Release.Name }}/values.yaml.gotmpl
+    secrets:
+      - ../../helm_vars/{{ .Environment.Name }}/secrets.yaml
+      - ../../helm_vars/{{ .Environment.Name }}/secrets.yaml.gotmpl
+      - ../../helm_vars/{{ .Environment.Name }}/_service_defaults/{{ .Release.Name }}/secrets.yaml
+      - ../../helm_vars/{{ .Environment.Name }}/_service_defaults/{{ .Release.Name }}/secrets.yaml.gotmpl
+      - ../../helm_vars/{{ .Environment.Name }}/{{ .Release.Labels.tenant }}/secrets.yaml
+      - ../../helm_vars/{{ .Environment.Name }}/{{ .Release.Labels.tenant }}/secrets.yaml.gotmpl
+      - ../../helm_vars/{{ .Environment.Name }}/{{ .Release.Labels.tenant }}/{{ .Release.Name }}/secrets.yaml
+      - ../../helm_vars/{{ .Environment.Name }}/{{ .Release.Labels.tenant }}/{{ .Release.Name }}/secrets.yaml.gotmpl
+    needs:
+      - regcred
+    hooks:
+      - events:
+          - cleanup
+        showlogs: true
+        command: bash
+        args:
+          - -c
+          - |
+            [[ -z "$CI" ]] && exit 0;
+            update_list={{ if .Event.Error }}/dev/null{{ else }}/tmp/helmfile_success.list{{ end }};
+            echo helm_vars/{{ .Environment.Name}}/{{ .Release.Labels.tenant}}/{{ .Release.Name }}/values.yaml >> $update_list
+
+  _thirdparty_values: &_thirdparty_values
+    values:
+      - "../../helm_vars/defaults/{{ .Release.Name }}/values.yaml.gotmpl"
+      - "../../helm_vars/defaults/{{ .Release.Name }}/values.yaml"
+      - "../../helm_vars/{{ .Environment.Name }}/_service_defaults/{{ .Release.Name }}/values.yaml"
+      - "../../helm_vars/{{ .Environment.Name }}/{{ .Release.Labels.tenant }}/{{ .Release.Name }}/values.yaml"
+      - "../../helm_vars/{{ .Environment.Name }}/{{ .Release.Labels.tenant }}/{{ .Release.Name }}/values.yaml.gotmpl"
+    secrets:
+      - "../../helm_vars/defaults/{{ .Release.Name }}/secrets.yaml"
+      - "../../helm_vars/defaults/{{ .Release.Name }}/secrets.yaml.gotmpl"
+      - "../../helm_vars/{{ .Environment.Name }}/_service_defaults/{{ .Release.Name }}/secrets.yaml"
+      - "../../helm_vars/{{ .Environment.Name }}/_service_defaults/{{ .Release.Name }}/secrets.yaml.gotmpl"
+      - "../../helm_vars/{{ .Environment.Name }}/{{ .Release.Labels.tenant }}/{{ .Release.Name }}/secrets.yaml"
+      - "../../helm_vars/{{ .Environment.Name }}/{{ .Release.Labels.tenant }}/{{ .Release.Name }}/secrets.yaml.gotmpl"
+    needs: []
+
+  global: &global
+    <<: *base
+    namespace: default
+    installedTemplate: "{{ (not (has .Release.Name .Environment.Values.disabled)) }}"
+
+  thirdparty: &thirdparty
+    <<: *base
+    <<: *_thirdparty_values
+    hooks: []
+
+  global_thirdparty: &global_thirdparty
+    <<: *global
+    <<: *_thirdparty_values
+
+  dns_clusterissuer: &dns_clusterissuer
+    <<: *global
+    name: dns-clusterissuer
+    chart: ../../charts/dns-clusterissuer
+    needs:
+      - cert-manager
+
+  regcred: &regcred
+    <<: *base
+    name: regcred
+    installedTemplate: "{{ eq .Environment.Name .Release.Labels.environment }}"
+    chart: ../../charts/regcred
+    values:
+      - Name: regcred-dockerhub
+      - imageCredentials:
+          username: zodinettech
+    secrets:
+      - ../../helm_vars/{{ .Environment.Name }}/secrets.yaml
+    needs: []
+
+  app: &app
+    name: app
+    <<: *base
+    needs:
+      - regcred
+
+  backend_api: &backend_api
+    name: backend-api
+    <<: *base
+    needs:
+      - regcred
+
+  voucher_api: &voucher_api
+    name: voucher-api
+    <<: *base
+    needs:
+      - regcred
+
+  replica_db_job: &replica_db_job
+    name: replica-db-job
+    <<: *base
+    needs:
+      - regcred
+
+  car_detector_api: &car_detector_api
+    name: car-detector-api
+    <<: *base
+    needs:
+      - regcred
+
+  car_detector_web: &car_detector_web
+    name: car-detector-web
+    <<: *base
+    needs:
+      - regcred
+
+  kiosk_web: &kiosk_web
+    name: kiosk-web
+    <<: *base
+    needs:
+      - regcred
+
+  redis: &redis
+    name: redis
+    namespace: "{{ .Release.Labels.tenant }}"
+    chart: ../../charts/bitnami/redis
+    missingFileHandler: Debug
+    values:
+      - "../../helm_vars/defaults/{{ .Release.Name }}/values.yaml"
+      - "../../helm_vars/{{ .Environment.Name }}/_service_defaults/{{ .Release.Name }}/values.yaml"
+      - "../../helm_vars/{{ .Environment.Name }}/{{ .Release.Labels.tenant }}/{{ .Release.Name }}/values.yaml"
+
+  redis_chatwoot: &redis_chatwoot
+    name: redis-chatwoot
+    namespace: "{{ .Release.Labels.tenant }}"
+    chart: ../../charts/bitnami/redis
+    missingFileHandler: Debug
+    values:
+      - "../../helm_vars/defaults/{{ .Release.Name }}/values.yaml"
+      - "../../helm_vars/{{ .Environment.Name }}/_service_defaults/{{ .Release.Name }}/values.yaml"
+
+
+    # hooks:
+    #   - events: ["presync", "postsync", "preinstall", "postinstall", "prerelease", "postrelease", "predelete", "postdelete"]
+    #     command: "kubectl apply -f ./helm_vars/defaults/redis/redis-pvc.yaml"
+
+  rabbitmq: &rabbitmq
+    name: rabbitmq
+    namespace: "{{ .Release.Labels.tenant }}"
+    chart: ../../charts/bitnami/rabbitmq
+    missingFileHandler: Debug
+    version: 12.6.0
+    values:
+      - "../../helm_vars/defaults/{{ .Release.Name }}/values.yaml"
+      - "../../helm_vars/{{ .Environment.Name }}/_service_defaults/{{ .Release.Name }}/values.yaml"
+    secrets:
+      - "../../helm_vars/{{ .Environment.Name }}/_service_defaults/{{ .Release.Name }}/secrets.yaml"
+
+
+  pgadmin: &pgadmin
+    name: pgadmin
+    missingFileHandler: Debug
+    namespace: "{{ .Release.Labels.tenant }}"
+    installedTemplate: "{{ eq .Environment.Name .Release.Labels.environment }}"
+    chart: ../../charts/runix/pgadmin4
+    values:
+      - "../../helm_vars/defaults/{{ .Release.Name }}/values.yaml"
+      - "../../helm_vars/{{ .Environment.Name }}/_service_defaults/{{ .Release.Name }}/values.yaml"
+    secrets:
+      - "../../helm_vars/{{ .Environment.Name }}/_service_defaults/{{ .Release.Name }}/secrets.yaml"
+
+  postgres: &postgres
+    name: postgres
+    missingFileHandler: Debug
+    namespace: "{{ .Release.Labels.tenant }}"
+    installedTemplate: "{{ eq .Environment.Name .Release.Labels.environment }}"
+    chart: ../../charts/bitnami/postgresql
+    values:
+      - "../../helm_vars/defaults/{{ .Release.Name }}/values.yaml"
+      - "../../helm_vars/{{ .Environment.Name }}/_service_defaults/{{ .Release.Name }}/values.yaml"
+    secrets:
+      - "../../helm_vars/{{ .Environment.Name }}/_service_defaults/{{ .Release.Name }}/secrets.yaml"
+
+  chatwoot: &chatwoot
+    name: chatwoot
+    missingFileHandler: Debug
+    namespace: "{{ .Release.Labels.tenant }}"
+    installedTemplate: "{{ eq .Environment.Name .Release.Labels.environment }}"
+    chart: ../../charts/chatwoot/chatwoot
+    values:
+      - "../../helm_vars/defaults/{{ .Release.Name }}/values.yaml"
+      - "../../helm_vars/{{ .Environment.Name }}/_service_defaults/{{ .Release.Name }}/values.yaml"
+      - "../../helm_vars/{{ .Environment.Name }}/{{ .Release.Labels.tenant }}/{{ .Release.Name }}/values.yaml"
+    secrets:
+      - "../../helm_vars/{{ .Environment.Name }}/_service_defaults/{{ .Release.Name }}/secrets.yaml"
+      - "../../helm_vars/{{ .Environment.Name }}/{{ .Release.Labels.tenant }}/{{ .Release.Name }}/secrets.yaml"
+
+  emqx: &emqx
+    name: emqx
+    missingFileHandler: Debug
+    namespace: "{{ .Release.Labels.tenant }}"
+    installedTemplate: "{{ eq .Environment.Name .Release.Labels.environment }}"
+    chart: ../../charts/emqx/emqx
+    values:
+      - "../../helm_vars/{{ .Environment.Name }}/_service_defaults/{{ .Release.Name }}/values.yaml"
+      - "../../helm_vars/{{ .Environment.Name }}/{{ .Release.Labels.tenant }}/{{ .Release.Name }}/values.yaml"
+
+  minio: &minio
+    name: minio
+    missingFileHandler: Debug
+    namespace: "{{ .Release.Labels.tenant }}"
+    chart: ../../charts/bitnami/minio
+    values:
+      - "../../helm_vars/defaults/{{ .Release.Name }}/values.yaml"
+      - "../../helm_vars/{{ .Environment.Name }}/_service_defaults/{{ .Release.Name }}/values.yaml"
+      - "../../helm_vars/{{ .Environment.Name }}/{{ .Release.Labels.tenant }}/{{ .Release.Name }}/values.yaml"
+    secrets:
+      - "../../helm_vars/{{ .Environment.Name }}/_service_defaults/{{ .Release.Name }}/secrets.yaml"
+      - "../../helm_vars/{{ .Environment.Name }}/{{ .Release.Labels.tenant }}/{{ .Release.Name }}/secrets.yaml"

@@ -1,0 +1,29 @@
+{{- range $i, $svc := .Values.services }}
+apiVersion: v1
+kind: Service
+metadata:
+{{- if (or (eq $i 0) (eq "http" $svc.name)) }}
+  name: {{ include "generic.fullname" $ }}
+{{- else }}
+  name: {{ printf "%s-%s" $svc.name (include "generic.fullname" $ ) | trunc 63 | trimSuffix "-" }}
+{{- end }}
+  labels:
+    {{- include "generic.labels" $ | nindent 4 }}
+  annotations:
+  {{- if $svc.neg | default false }}
+    cloud.google.com/neg: '{"ingress": true}'
+  {{- end }}
+  {{- if $svc.backendConfig }}
+    cloud.google.com/backend-config: '{"default": "{{ include "generic.fullname" $ }}" }'
+  {{- end }}
+spec:
+  type: {{ $svc.type | default "ClusterIP" }}
+  ports:
+    - port: {{ $svc.port }}
+      targetPort: {{ $svc.targetPort | default $svc.port }}
+      protocol: {{ $svc.proto | default "TCP" }}
+      name: {{ $svc.name }}
+  selector:
+    {{- include "generic.selectorLabels" $ | nindent 4 }}
+---
+{{- end }}

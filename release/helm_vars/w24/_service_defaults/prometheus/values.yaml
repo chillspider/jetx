@@ -1,0 +1,36 @@
+alertmanager:
+  enabled: false
+server:
+  extraArgs:
+  retention: "30d"
+securityContext:
+  runAsUser: 0
+global:
+  defaultResources:
+    requests:
+      cpu: 10m
+      memory: 1Gi
+grafana:
+  persistence:
+    enabled: true
+  ingress:
+    enabled: true
+    ingressClassName: nginx
+    annotations:
+      cert-manager.io/cluster-issuer: "default"
+    hosts:
+      - "grafana.vn01.wash24h.io"
+    tls:
+      - secretName: grafana-cert
+        hosts:
+        - "grafana.vn01.wash24h.io"
+prometheus:
+  prometheusSpec:
+    podMonitorSelectorNilUsesHelmValues: false
+    serviceMonitorSelectorNilUsesHelmValues: false
+  serverFiles:
+    prometheus.yml: |-
+      global:
+        scrape_interval: 60s
+        evaluation_interval: 60s
+      scrape_configs:

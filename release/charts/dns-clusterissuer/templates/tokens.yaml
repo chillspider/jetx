@@ -1,0 +1,19 @@
+{{- $root := . -}}
+{{- range $_, $token := .Values.tokens }}
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: {{ $token.name }}
+  {{- if $token.namespace }}
+  namespace: {{ $token.namespace }}
+  {{- end }}
+type: Opaque
+stringData:
+  {{- if $root.Values.cloudflare  }}
+    api-token: {{ $root.Values.cloudflare.key }}
+  {{- else }}
+    api-token: uBtISKfWMUR5ehDz0PULZDFig6XN4GEGCCrScWEe
+  {{- end }}
+---
+{{- end }}

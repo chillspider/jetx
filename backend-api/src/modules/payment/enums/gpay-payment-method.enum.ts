@@ -1,0 +1,6 @@
+export enum GPaymentMethodEnum {
+  ATMCARD = 'DOMESTIC',
+  INTERNATIONAL = 'INTERNATIONAL',
+  EWALLET = 'WALLET',
+  QRPAYMENT = 'QRPAY',
+}

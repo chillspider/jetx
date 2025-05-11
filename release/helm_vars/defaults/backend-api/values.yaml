@@ -1,0 +1,51 @@
+---
+
+image:
+  repository: zodinettech/wash24-api
+  pullPolicy: IfNotPresent
+
+imagePullSecrets:
+  - name: regcred-dockerhub
+services:
+  - name: http
+    port: 80
+    targetPort: 3000
+
+resources:
+  requests:
+#    cpu: 100m
+#    memory: 256Mi
+ingress:
+  enabled: true
+  defaultBackend: true
+  subdomains:
+    - backend-api
+  paths:
+    - path: /
+      pathType: Prefix
+      serviceName: backend-api
+      servicePort: 3000
+  pathOverrides:
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-body-size: "10m"
+
+livenessProbe:
+  httpGet:
+    path: /api/healthcheck
+    port: 3000
+readinessProbe:
+  httpGet:
+    path: /api/healthcheck
+    port: 3000
+startupProbe:
+  httpGet:
+    path: /api/healthcheck
+    port: 3000
+  failureThreshold: 20
+  periodSeconds: 3
+podAnnotations:
+
+env:
+  HOST: 0.0.0.0
+  PORT: 3000
+  

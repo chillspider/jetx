@@ -1,0 +1,52 @@
+image:
+  repository: "zodinettech/wash24-api"
+  tag: "v0.5.9"
+ingress:
+  annotations:
+    cert-manager.io/cluster-issuer: "default"
+  tls:
+    secretName: backend-api
+internalIngress:
+  enabled: false
+migrate:
+  enabled: true
+  supported: true
+resources:
+  requests:
+  limits:
+    cpu: 1000m
+    memory: 1Gi
+env:
+  NODE_ENV: "production"
+  PORT: "3000"
+  HOST: "0.0.0.0"
+  ENABLE_SEEDING: "false"
+  ENABLE_DOCUMENTATION: "true"
+  SWAGGER_PATH: "swagger"
+  SWAGGER_SCHEME: "https"
+  DB_SSL: "false"
+  DB_TYPE: postgres
+  DB_HOST: "10.46.34.227"
+  DB_PORT: "5432"
+  REDIS_CACHE_ENABLED: "true"
+  REDIS_HOST: "redis-master"
+  REDIS_PORT: "6379"
+  REDIS_PASSWORD: ""
+  REDIS_DB: "1"
+  APPLE_APP_AUDIENCE: com.wash.jetx
+  MAIL_HOST: smtp.sendgrid.net
+  MAIL_PORT: "587"
+  MAIL_FROMADDRESS: noreply@wash24h.io
+  MAIL_FROMNAME: JETX Vietnam
+  PAYMENT_METHODS: credit,qr,qrpay
+  VOUCHER_URL: http://voucher-api
+  VOUCHER_FREE_NEW_USER: "true"
+  APP_ID: com.wash.jetx
+  API_URL: https://backend-api.vn01.wash24h.io
+  TAX_RATE: "8"
+  INVOICE_ENABLED_DISCOUNT: "false"
+  CHATWOOT_BASE_URL: https://cs.wash24h.io
+  CHATWOOT_ACCOUNT_ID: "1"
+  CHATWOOT_INBOX_ID: "1"
+  PACKAGE_BLACK_LIST: "levanphu100874@gmail.com,phucuong123@gmail.com"
+  DETECTOR_URL: http://car-detector-api

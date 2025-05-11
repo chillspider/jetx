@@ -1,0 +1,11 @@
+---
+helmDefaults:
+  maxHistory: 5
+  
+bases:
+  - tenants/_base.yaml
+
+helmfiles:
+  {{ range $index,$item := readDir (printf "tenants/%s/" .Environment.Name) }}
+  - {{ $item }}
+{{- end }}

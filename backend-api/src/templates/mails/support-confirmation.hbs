@@ -1,0 +1,37 @@
+<div style="width: 100%; max-width: 500px; margin: 0 auto;">
+  <h1 style="
+      margin: 0;
+      font-size: 24px;
+      font-weight: 500;
+      color: #1f1f1f;
+    ">
+    {{title}}
+  </h1>
+  <p style="
+      margin: 0;
+      margin-top: 16px;
+      font-size: 16px;
+      font-weight: 500;
+    ">
+    {{{welcome}}}
+  </p>
+  <p style="
+      margin: 0;
+      margin-top: 16px;
+    ">
+    {{content}}
+  </p>
+  {{#if verifyEmailUrl }}
+  <p style="
+      margin: 0;
+      margin-top: 16px;
+      margin-bottom: 16px;
+    ">
+    {{verifyEmail}}
+  </p>
+  <a style="
+      font-size: 24px;
+      font-weight: 700;
+    " href="{{verifyEmailUrl}}">{{verifyEmailButton}}</a>
+  {{/if}}
+</div>

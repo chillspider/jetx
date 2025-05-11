@@ -1,0 +1,26 @@
+acme:
+  server: https://acme-v02.api.letsencrypt.org/directory
+
+solvers:
+  - dns01:
+      cloudflare:
+        apiTokenSecretRef:
+          name: "{{ .Environment.Name }}-cloudflare-api-token"
+          key: api-token
+
+  - http01:
+      ingress:
+        class: nginx
+tokens:
+  default:
+    name: "{{ .Environment.Name }}-cloudflare-api-token"
+    namespace: default
+
+certs:
+# Using DNS01 with cloudflare token to authorize owner
+  default:
+    name: default-wildcard
+    commonName: "santamarket"
+    dnsNames:
+      - "vn01.wash24h.io"
+      - "*.vn01.wash24h.io"

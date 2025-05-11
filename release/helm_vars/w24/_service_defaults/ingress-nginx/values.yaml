@@ -1,0 +1,35 @@
+---
+controller:
+  replicaCount: 5
+  metrics:
+    enabled: true
+  serviceMonitor:
+    additionalLabels:
+      release: prometheus
+    enabled: true
+  ingressClass: nginx
+  ingressClassResource:
+    default: true
+    enabled: true
+    name: nginx
+  autoscaling:
+    enabled: false
+  config:
+    enable-underscores-in-headers: "true"
+    force-ssl-redirect: true
+    nginx-status-ipv4-whitelist: "10.224.0.0/11"
+    proxy-buffer-size: 16k
+    server-snippet: |
+      location ~* /v[0-9]/ops {
+        return 404 "{\"code\":404,\"message\":\"path $uri was not found\"}";
+      }
+  service:
+    externalTrafficPolicy: Local
+
+  podAnnotations:
+
+  readinessProbe:
+    initialDelaySeconds: 40
+
+defaultBackend:
+  enabled: true

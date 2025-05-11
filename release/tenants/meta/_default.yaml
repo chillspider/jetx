@@ -1,0 +1,59 @@
+---
+bases:
+  - "../_base.yaml" 
+---
+# {{ readFile "../meta/_templates.yaml" }}
+
+commonLabels:
+  tenant: default
+
+releases:
+  - name: cert-manager
+    <<: *global_thirdparty
+    chart: ../../charts/jetstack/cert-manager
+
+  - name: ingress-nginx
+    <<: *global_thirdparty
+    chart: ingress-nginx/ingress-nginx
+    namespace: ingress-nginx
+    version: 4.5.2
+    needs:
+      - default/cert-manager
+      - default/dns-clusterissuer
+
+  - name: ingress-nginx-internal
+    <<: *global_thirdparty
+    chart: ingress-nginx/ingress-nginx
+    namespace: ingress-nginx
+    version: 4.5.2
+    needs:
+      - default/cert-manager
+      - default/dns-clusterissuer
+
+  - name: prometheus
+    <<: *global_thirdparty
+    chart: ../../charts/prometheus-community/kube-prometheus-stack
+    namespace: prometheus
+
+  - name: regcred
+    <<: *regcred
+    namespace: default
+    installedTemplate: true
+
+  - name: emqx
+    <<: *emqx
+    namespace: default
+    installedTemplate: true
+
+
+  - name: eraser
+    <<: *global_thirdparty
+    namespace: eraser-system
+    chart: ../../charts/eraser/eraser
+
+  - name: loki
+    <<: *global_thirdparty
+    chart: ../../charts/grafana/loki-stack
+    namespace: loki
+
+  - <<: *dns_clusterissuer

@@ -1,0 +1,70 @@
+{
+  "_comment": "======Deprecated, But must be kept for legacy data compatibility======",
+  "title.order_pending": "Đã thanh toán thành công",
+  "title.order_processing": "Đang khởi động máy",
+  "title.order_completed": "Đã hoàn thành",
+  "title.order_failed": "Thất bại",
+  "title.order_abnormal_stop": "Máy đã dừng đột ngột",
+  "title.order_self_stop": "Máy đã dừng",
+  "content.order_pending": "#{incrementId} đã thanh toán thành công",
+  "content.order_processing": "#{incrementId} đang bắt đầu khởi động máy",
+  "content.order_completed": "#{incrementId} đã hoàn thành",
+  "content.order_failed": "#{incrementId} bị thất bại",
+  "content.order_abnormal_stop": "#{incrementId} đã bị dừng đột ngột",
+  "content.order_self_stop": "#{incrementId} đã dừng lại",
+  "__comment": "======Deprecated, But must be kept for legacy data compatibility======",
+  "order": {
+    "title": {
+      "pending": "Đã thanh toán thành công",
+      "processing": "Đang khởi động máy",
+      "completed": "Đã hoàn thành",
+      "failed": "Thất bại",
+      "abnormal_stop": "Máy đã dừng đột ngột",
+      "self_stop": "Máy đã dừng"
+    },
+    "content": {
+      "pending": "#{incrementId} đã thanh toán thành công",
+      "processing": "#{incrementId} đang bắt đầu khởi động máy",
+      "completed": "#{incrementId} đã hoàn thành",
+      "failed": "#{incrementId} bị thất bại",
+      "abnormal_stop": "#{incrementId} đã bị dừng đột ngột",
+      "self_stop": "#{incrementId} đã dừng lại"
+    },
+    "package": {
+      "title": {
+        "pending": "Đã thanh toán thành công",
+        "completed": "Đã hoàn thành",
+        "failed": "Thất bại"
+      },
+      "content": {
+        "pending": "Bạn đã mua gói \"{packageName}\" thành công, xin vui lòng kiểm tra trong phần Voucher của bạn sau vài phút",
+        "completed": "Gói \"{packageName}\" đã được kích hoạt thành công, xin vui lòng kiểm tra trong phần Voucher của bạn",
+        "failed": "Gói \"{packageName}\" găp sự cố, xin vui lòng liên hệ với bộ phận hỗ trợ"
+      }
+    },
+    "fnb": {
+      "title": {
+        "rejected": "Bị từ chối",
+        "canceled": "Bị hủy",
+        "refunded": "Bị từ chối",
+        "completed": "Đã được xác nhận"
+      },
+      "content": {
+        "rejected": "Đơn hàng #{incrementId} đã bị từ chối, xin vui lòng liên hệ với bộ phận hỗ trợ",
+        "canceled": "Đơn hàng #{incrementId} đã bị hủy, xin vui lòng liên hệ với bộ phận hỗ trợ",
+        "refunded": "Đơn hàng #{incrementId} đã bị từ chối, sẽ hoàn tiền trong thời gian sớm nhất",
+        "completed": "Đơn hàng #{incrementId} đã được xác nhận"
+      }
+    }
+  },
+  "support": {
+    "title": {
+      "inProgress": "Đang xử lý",
+      "closed": "Hoàn tất"
+    },
+    "content": {
+      "inProgress": "Yêu cầu hỗ trợ \"{title}\" đang được xử lý, bạn có thể chat với nhân viên hỗ trợ.",
+      "closed": "Yêu cầu hỗ trợ \"{title}\" đã hoàn tất, xin vui lòng kiểm tra chi tiết."
+    }
+  }
+}
