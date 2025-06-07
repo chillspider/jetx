@@ -1,0 +1,43 @@
+Phase 1 (Pi Node Stack):
+Phase 2 (Cloud API & PlateRecognizer):
+Phase 3 (Web Dashboard):
+Phase 4 (Prometheus Monitoring):
+Phase 5 (Self-Healing):
+Phase 6 (Auto-Discovery):
+
+
+Project Scope Summary
+
+  Overall System
+
+  - 500+ car wash locations with Raspberry Pi devices
+  - RTSP camera stream processing with snapshot generation
+  - License plate recognition via PlateRecognizer API
+  - Centralized cloud management with real-time monitoring
+  - Self-healing capabilities for automated recovery
+
+  Development Approach
+
+  1. Phase 1 (Weeks 1-3): Pi Node application - CRITICAL for operations
+  2. Phase 2 (Weeks 4-6): Cloud API & PlateRecognizer - CRITICAL for revenue
+  3. Phase 3 (Weeks 7-9): Web Dashboard - HIGH priority
+  4. Phase 4 (Weeks 10-11): Prometheus/Grafana monitoring - MEDIUM
+  5. Phase 5 (Weeks 12-13): Self-healing systems - MEDIUM
+  6. Phase 6 (Weeks 14-15): Auto-discovery - LOW/Nice-to-have
+
+  Key Technical Decisions
+
+  - Pure code implementation (not n8n) for performance and customization
+  - Node.js/TypeScript stack for both Pi and cloud
+  - Mock service on port 3003 for all phases
+  - PostgreSQL + MongoDB for data storage
+  - Redis for real-time communication
+  - Docker/Kubernetes for deployment
+
+  Critical Success Factors
+
+  - Pi snapshot API must respond in <100ms
+  - System must handle 500+ concurrent devices
+  - 99.5% uptime target
+  - Revenue generation possible by Week 6
+

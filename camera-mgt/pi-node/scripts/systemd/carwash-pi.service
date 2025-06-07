@@ -1,0 +1,59 @@
+[Unit]
+Description=CarWash Pi Node - Camera Management Service
+Documentation=https://github.com/carwash/pi-node
+After=network.target network-online.target
+Wants=network-online.target
+RequiresMountsFor=/opt/carwash
+
+[Service]
+Type=simple
+User=carwash
+Group=carwash
+WorkingDirectory=/opt/carwash
+Environment=NODE_ENV=production
+Environment=PATH=/usr/bin:/usr/local/bin
+EnvironmentFile=-/opt/carwash/.env
+ExecStart=/usr/bin/node /opt/carwash/src/app.js
+ExecReload=/bin/kill -HUP $MAINPID
+ExecStop=/bin/kill -TERM $MAINPID
+KillMode=mixed
+KillSignal=SIGTERM
+TimeoutStopSec=30
+Restart=always
+RestartSec=10
+StartLimitInterval=60
+StartLimitBurst=3
+
+# Output control
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=carwash-pi
+
+# Security settings
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/opt/carwash
+CapabilityBoundingSet=
+SystemCallArchitectures=native
+MemoryDenyWriteExecute=false
+RestrictRealtime=true
+RestrictSUIDSGID=true
+LockPersonality=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+
+# Resource limits
+LimitNOFILE=65535
+LimitNPROC=4096
+MemoryMax=512M
+TasksMax=1024
+
+# Monitoring and restart behavior
+WatchdogSec=60
+NotifyAccess=main
+
+[Install]
+WantedBy=multi-user.target
